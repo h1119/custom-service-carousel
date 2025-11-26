@@ -1,0 +1,1287 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>اختبار البلاگين - Service Carousel</title>
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* Basic reset */
+        * {
+            -webkit-tap-highlight-color: transparent;
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            user-select: none;
+        }
+
+        body {
+            /* margin: 0; */
+            /* padding: 0; */
+            /* background: #f5f5f5; */
+            /* min-height: 100vh; */
+            /* font-family: "Cairo", sans-serif; */
+            /* text-align: right; */
+            /* padding: 40px 20px; */
+            /* overflow-x: hidden; */
+            /* -webkit-font-smoothing: antialiased; */
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        /* Service container */
+        .csc-service-carousel {
+            width: 100%;
+            max-width: 1400px;
+            margin: 0 auto;
+            /* padding: 30px; */
+            position: relative;
+            direction: rtl;
+            /* background: #ffffff; */
+            /* border-radius: 8px; */
+            /* box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); */
+            /* font-family: "Cairo", sans-serif; */
+            /* box-sizing: border-box; */
+        }
+
+        /* Location Selector */
+        .csc-location-selector {
+            margin-bottom: 24px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .csc-location-label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 16px;
+            font-weight: 500;
+            color: #2D3748;
+            font-family: "Cairo", sans-serif;
+            white-space: nowrap;
+        }
+
+        .csc-location-label i {
+            color: #2196F3;
+            font-size: 18px;
+        }
+
+        .csc-location-select {
+            flex: 1;
+            min-width: 200px;
+            max-width: 400px;
+            padding: 12px 16px;
+            border: 1px solid #E2E8F0;
+            border-radius: 8px;
+            background: #ffffff;
+            color: #2D3748;
+            font-size: 15px;
+            font-family: "Cairo", sans-serif;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%232D3748' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: left 16px center;
+            padding-right: 16px;
+            padding-left: 40px;
+        }
+
+        .csc-location-select:hover {
+            border-color: #2196F3;
+            box-shadow: 0 2px 8px rgba(33, 150, 243, 0.15);
+        }
+
+        .csc-location-select:focus {
+            outline: none;
+            border-color: #2196F3;
+            box-shadow: 0 0 0 3px rgba(33, 150, 243, 0.1);
+        }
+
+        .csc-location-select option {
+            padding: 10px;
+            font-family: "Cairo", sans-serif;
+        }
+
+        @media (max-width: 768px) {
+            .csc-location-selector {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .csc-location-label {
+                width: 100%;
+            }
+            
+            .csc-location-select {
+                width: 100%;
+                max-width: 100%;
+            }
+        }
+
+        /* Main Categories - Always in one line */
+        .csc-main-categories {
+            display: flex;
+            flex-direction: row;
+            gap: 20px;
+            margin-bottom: 32px;
+            padding: 0;
+            flex-wrap: nowrap;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            width: 100%;
+        }
+
+        .csc-main-categories .csc-service-box {
+            flex: 1;
+            min-width: 0;
+            flex-shrink: 1;
+        }
+
+        @media (max-width: 1200px) {
+            .csc-main-categories {
+                gap: 20px;
+            }
+        }
+
+        @media (max-width: 992px) {
+            .csc-main-categories {
+                gap: 16px;
+            }
+            
+            .csc-main-categories .csc-service-box {
+                min-width: 150px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .csc-main-categories {
+                gap: 12px;
+                margin-bottom: 24px;
+            }
+            
+            .csc-main-categories .csc-service-box {
+                flex: 1;
+                min-width: 120px;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .csc-main-categories {
+                gap: 10px;
+                margin-bottom: 24px;
+            }
+            
+            .csc-main-categories .csc-service-box {
+                flex: 1;
+                min-width: 100px;
+            }
+        }
+
+        /* Service box style - Main categories (grid) */
+        .csc-main-categories .csc-service-box {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            gap: 0;
+            text-decoration: none;
+            background: #2196F3;
+            border: none;
+            border-radius: 12px;
+            padding: 28px 20px 24px 20px;
+            box-shadow: 0 4px 12px rgba(33, 150, 243, 0.3);
+            transition: all 0.3s ease;
+            color: #ffffff;
+            width: 100%;
+            word-wrap: break-word;
+            text-align: center;
+            cursor: pointer;
+            position: relative;
+            min-height: 200px;
+            font-family: "Cairo", sans-serif;
+            box-sizing: border-box;
+        }
+
+        @media (max-width: 992px) {
+            .csc-main-categories .csc-service-box {
+                padding: 24px 16px 20px 16px;
+                min-height: 180px;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .csc-main-categories .csc-service-box {
+                padding: 20px 16px 18px 16px;
+                min-height: 160px;
+            }
+        }
+
+        /* Service box style - Secondary services (horizontal) */
+        .csc-secondary-services .csc-service-box {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            text-decoration: none;
+            background: #F7FAFC;
+            border: 1px solid #E2E8F0;
+            /* border-radius: 50px; */
+            padding: 8px 20px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            color: #2D3748;
+            word-wrap: nowrap;
+            white-space: nowrap;
+            text-align: center;
+            cursor: pointer;
+            position: relative;
+            transform: scale(1);
+            will-change: transform, box-shadow;
+            flex-shrink: 0;
+            min-width: fit-content;
+            max-width: 100%;
+            box-sizing: border-box;
+        }
+
+        /* Responsive padding and font size */
+        @media (min-width: 1200px) {
+            .csc-secondary-services .csc-service-box {
+                padding: 10px 24px;
+            }
+            
+            .csc-secondary-services .csc-service-box h4 {
+                font-size: 14px;
+            }
+        }
+
+        @media (min-width: 992px) and (max-width: 1199px) {
+            .csc-secondary-services .csc-service-box {
+                padding: 9px 22px;
+            }
+            
+            .csc-secondary-services .csc-service-box h4 {
+                font-size: 13.5px;
+            }
+        }
+
+        @media (min-width: 768px) and (max-width: 991px) {
+            .csc-secondary-services .csc-service-box {
+                padding: 8px 20px;
+            }
+            
+            .csc-secondary-services .csc-service-box h4 {
+                font-size: 13px;
+            }
+        }
+
+        .csc-secondary-services .csc-service-box:active {
+            transform: scale(0.96);
+            transition: transform 0.1s ease;
+        }
+
+        /* Remove border indicator for horizontal layout */
+        .csc-secondary-services .csc-service-box::before {
+            display: none;
+        }
+
+        .csc-main-categories .csc-service-box:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 6px 20px rgba(33, 150, 243, 0.4);
+            background: #3182CE;
+        }
+
+        .csc-main-categories .csc-service-box:hover h4 {
+            color: #ffffff;
+        }
+
+        .csc-secondary-services .csc-service-box:hover {
+            transform: translateY(-2px) scale(1.02);
+            box-shadow: 0 4px 12px rgba(33, 150, 243, 0.2);
+            border-color: #3182CE;
+            background: #EDF2F7;
+        }
+
+        .csc-secondary-services .csc-service-box:hover:active {
+            transform: translateY(0) scale(0.96);
+        }
+
+        /* Icon container */
+        .csc-main-categories .csc-service-box {
+            position: relative;
+        }
+
+        /* Icon background removed */
+
+        /* Icon style - Main categories */
+        .csc-main-categories .csc-service-box svg,
+        .csc-main-categories .csc-service-box img {
+            width: 42px;
+            height: 42px;
+            padding: 0;
+            border-radius: 0;
+            background: transparent;
+            color: #ffffff;
+            fill: #ffffff;
+            display: block;
+            position: absolute;
+            top: 32px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 1;
+            margin: 0;
+            box-shadow: none;
+            transition: all 0.3s ease;
+            object-fit: contain;
+            box-sizing: border-box;
+            flex-shrink: 0;
+        }
+
+        .csc-main-categories .csc-service-box svg path,
+        .csc-main-categories .csc-service-box svg {
+            fill: #ffffff !important;
+            stroke: #ffffff !important;
+            color: #ffffff !important;
+        }
+
+        /* Icon background hover removed */
+
+        .csc-main-categories .csc-service-box:hover svg,
+        .csc-main-categories .csc-service-box:hover img {
+            transform: translateX(-50%) scale(1.05);
+        }
+
+        /* Icon style - Secondary services */
+        .csc-secondary-services .csc-service-box i {
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            background: #ffffff;
+            color: #898989;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            box-shadow: 0 2px 4px rgba(33, 150, 243, 0.2);
+            flex-shrink: 0;
+            transition: all 0.3s ease;
+        }
+
+        .csc-secondary-services .csc-service-box:hover i {
+            transform: scale(1.1);
+            background: #ffffff;
+            box-shadow: 0 4px 12px rgba(33, 150, 243, 0.4);
+        }
+
+        /* Title style - Main categories */
+        .csc-main-categories .csc-service-box h4 {
+            margin: 0;
+            margin-top: 90px;
+            font-size: 17px;
+            font-weight: 500;
+            color: #ffffff;
+            line-height: 1.6;
+            white-space: normal;
+            overflow: visible;
+            text-overflow: clip;
+            transition: all 0.3s ease;
+            font-family: "Cairo", sans-serif;
+        }
+
+        /* Title style - Secondary services */
+        .csc-secondary-services .csc-service-box h4 {
+            margin: 0;
+            font-size: 13px;
+            font-weight: 500;
+            color: #2D3748;
+            line-height: 1.4;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            transition: all 0.3s ease;
+            font-family: "Cairo", sans-serif;
+            text-align: center;
+        }
+
+        .csc-secondary-services .csc-service-box:hover h4 {
+            color: #2C5282;
+        }
+
+        .csc-secondary-services .csc-service-box.marked h4 {
+            color: #ffffff;
+            font-weight: 600;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .csc-service-carousel {
+                padding: 20px;
+            }
+            
+            .csc-main-categories .csc-service-box h4 {
+                font-size: 15px;
+                margin-top: 80px;
+            }
+            
+            /* Icon background removed in responsive */
+            
+            .csc-main-categories .csc-service-box svg,
+            .csc-main-categories .csc-service-box img {
+                width: 36px;
+                height: 36px;
+                top: 28px;
+            }
+            
+            .csc-secondary-services {
+                padding: 14px 0 !important;
+                gap: 9px;
+            }
+            
+            .csc-secondary-services .csc-service-box {
+                padding: 7px 19px;
+            }
+            
+            .csc-secondary-services .csc-service-box h4 {
+                font-size: 12.5px;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .csc-service-carousel {
+                padding: 0px;
+            }
+            
+            .csc-main-categories .csc-service-box h4 {
+                font-size: 14px;
+                margin-top: 70px;
+            }
+            
+            /* Icon background removed in responsive */
+            
+            .csc-main-categories .csc-service-box svg,
+            .csc-main-categories .csc-service-box img {
+                width: 32px;
+                height: 32px;
+                top: 24px;
+            }
+            
+            .csc-secondary-services {
+                padding: 12px 0 !important;
+                gap: 8px;
+            }
+            
+            .csc-secondary-services .csc-service-box {
+                padding: 6px 18px;
+            }
+            
+            .csc-secondary-services .csc-service-box h4 {
+                font-size: 12px;
+            }
+        }
+
+        /* Secondary services container - Horizontal scrollable */
+        .csc-secondary-services {
+            display: none; /* Hidden by default, shown via JavaScript */
+            margin-top: 24px;
+            padding: 20px 0;
+            background: transparent;
+            animation: slideDown 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            will-change: transform, opacity;
+            overflow-x: auto;
+            overflow-y: hidden;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: thin;
+            scrollbar-color: #CBD5E0 #F7FAFC;
+        }
+
+        /* Force secondary services to appear as horizontal flex */
+        .csc-secondary-services {
+            display: flex !important;
+            flex-direction: row;
+            gap: 10px;
+            padding: 16px 0 !important;
+        }
+
+        /* Responsive gap */
+        @media (min-width: 1200px) {
+            .csc-secondary-services {
+                gap: 12px;
+                padding: 18px 0 !important;
+            }
+        }
+
+        @media (min-width: 992px) and (max-width: 1199px) {
+            .csc-secondary-services {
+                gap: 11px;
+                padding: 17px 0 !important;
+            }
+        }
+
+        @media (min-width: 768px) and (max-width: 991px) {
+            .csc-secondary-services {
+                gap: 10px;
+                padding: 16px 0 !important;
+            }
+        }
+
+        .csc-secondary-services[style*="display: flex"],
+        .csc-secondary-services[style*="display:flex"],
+        .csc-secondary-services[style*="display: grid"],
+        .csc-secondary-services[style*="display:grid"] {
+            display: flex !important;
+            flex-direction: row !important;
+            gap: 12px;
+        }
+
+        /* Custom scrollbar for webkit browsers */
+        .csc-secondary-services::-webkit-scrollbar {
+            height: 6px;
+        }
+
+        .csc-secondary-services::-webkit-scrollbar-track {
+            background: #F7FAFC;
+            border-radius: 10px;
+        }
+
+        .csc-secondary-services::-webkit-scrollbar-thumb {
+            background: #CBD5E0;
+            border-radius: 10px;
+        }
+
+        .csc-secondary-services::-webkit-scrollbar-thumb:hover {
+            background: #A0AEC0;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px) scale(0.95);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        /* Marked (selected) style - Main categories */
+        .csc-main-categories .csc-service-box.marked {
+            box-shadow: 0 6px 20px rgba(33, 150, 243, 0.5);
+            transform: translateY(-4px);
+            background: #1565C0;
+        }
+
+        .csc-main-categories .csc-service-box.marked h4 {
+            color: #ffffff;
+            font-weight: 600;
+        }
+
+        /* Icon background marked removed */
+
+        .csc-main-categories .csc-service-box.marked svg,
+        .csc-main-categories .csc-service-box.marked img {
+            transform: translateX(-50%) scale(1.05);
+        }
+
+        /* Marked (selected) style - Secondary services */
+        .csc-secondary-services .csc-service-box.marked {
+            box-shadow: 0 4px 12px rgba(49, 130, 206, 0.3);
+            transform: translateY(-2px);
+            /* border-color: #007fff; */
+            background: #2196f3;
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        .csc-secondary-services .csc-service-box.marked h4 {
+            color: #ffffff;
+            font-weight: 600;
+        }
+
+        .csc-secondary-services .csc-service-box.marked i {
+            background: #ffffff;
+            box-shadow: 0 2px 8px rgba(25, 118, 210, 0.3);
+        }
+
+        /* Go Button */
+        .csc-go-button {
+            display: none; /* Hidden by default */
+            margin-top: 24px;
+            padding: 14px 32px;
+            background: #2196F3;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 4px rgba(33, 150, 243, 0.3);
+        }
+
+        .csc-go-button:hover {
+            background: #1976D2;
+            box-shadow: 0 4px 8px rgba(33, 150, 243, 0.4);
+            transform: translateY(-1px);
+        }
+
+        .csc-go-button:active {
+            transform: translateY(0);
+            box-shadow: 0 1px 2px rgba(33, 150, 243, 0.3);
+        }
+
+        /* Debug info */
+        .debug-info {
+            margin: 20px auto;
+            max-width: 1400px;
+            padding: 15px;
+            background: #fff;
+            border-radius: 8px;
+            font-size: 12px;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <div class="csc-service-carousel">
+        <!-- Location Selector -->
+        <div class="csc-location-selector">
+            <label for="locationSelect" class="csc-location-label">
+                <i class="fas fa-map-marker-alt"></i>
+                اختر الموقع
+            </label>
+            <select id="locationSelect" class="csc-location-select">
+                <option value="">-- اختر الموقع --</option>
+                <optgroup label="المنطقة الشرقية">
+                    <option value="الدمام">الدمام</option>
+                    <option value="الخبر">الخبر</option>
+                    <option value="الظهران">الظهران</option>
+                    <option value="القطيف">القطيف</option>
+                    <option value="الأحساء">الأحساء</option>
+                    <option value="حفر الباطن">حفر الباطن</option>
+                    <option value="الجبيل">الجبيل</option>
+                    <option value="رأس تنورة">رأس تنورة</option>
+                    <option value="بقيق">بقيق</option>
+                    <option value="النعيرية">النعيرية</option>
+                </optgroup>
+                <optgroup label="منطقة الرياض">
+                    <option value="الرياض">الرياض</option>
+                    <option value="الخرج">الخرج</option>
+                    <option value="الدوادمي">الدوادمي</option>
+                    <option value="المجمعة">المجمعة</option>
+                    <option value="القويعية">القويعية</option>
+                    <option value="الأفلاج">الأفلاج</option>
+                    <option value="وادي الدواسر">وادي الدواسر</option>
+                    <option value="الزلفي">الزلفي</option>
+                    <option value="شقراء">شقراء</option>
+                    <option value="حوطة بني تميم">حوطة بني تميم</option>
+                </optgroup>
+                <optgroup label="منطقة مكة المكرمة">
+                    <option value="مكة المكرمة">مكة المكرمة</option>
+                    <option value="جدة">جدة</option>
+                    <option value="الطائف">الطائف</option>
+                    <option value="رابغ">رابغ</option>
+                    <option value="خليص">خليص</option>
+                    <option value="القنفذة">القنفذة</option>
+                    <option value="الليث">الليث</option>
+                    <option value="أضم">أضم</option>
+                    <option value="تربة">تربة</option>
+                    <option value="رنية">رنية</option>
+                </optgroup>
+                <optgroup label="منطقة المدينة المنورة">
+                    <option value="المدينة المنورة">المدينة المنورة</option>
+                    <option value="ينبع">ينبع</option>
+                    <option value="العلا">العلا</option>
+                    <option value="المدينة">المدينة</option>
+                    <option value="بدر">بدر</option>
+                    <option value="خيبر">خيبر</option>
+                    <option value="العيص">العيص</option>
+                    <option value="الحناكية">الحناكية</option>
+                </optgroup>
+                <optgroup label="منطقة القصيم">
+                    <option value="بريدة">بريدة</option>
+                    <option value="عنيزة">عنيزة</option>
+                    <option value="الرس">الرس</option>
+                    <option value="المذنب">المذنب</option>
+                    <option value="البكيرية">البكيرية</option>
+                    <option value="البدائع">البدائع</option>
+                    <option value="الأسياح">الأسياح</option>
+                    <option value="النبهانية">النبهانية</option>
+                </optgroup>
+                <optgroup label="منطقة عسير">
+                    <option value="أبها">أبها</option>
+                    <option value="خميس مشيط">خميس مشيط</option>
+                    <option value="نجران">نجران</option>
+                    <option value="جازان">جازان</option>
+                    <option value="صبيا">صبيا</option>
+                    <option value="أحد رفيدة">أحد رفيدة</option>
+                    <option value="محايل عسير">محايل عسير</option>
+                    <option value="النماص">النماص</option>
+                    <option value="بلقرن">بلقرن</option>
+                    <option value="تثليث">تثليث</option>
+                </optgroup>
+                <optgroup label="منطقة تبوك">
+                    <option value="تبوك">تبوك</option>
+                    <option value="الوجه">الوجه</option>
+                    <option value="ضباء">ضباء</option>
+                    <option value="تيماء">تيماء</option>
+                    <option value="أملج">أملج</option>
+                    <option value="حقل">حقل</option>
+                </optgroup>
+                <optgroup label="منطقة حائل">
+                    <option value="حائل">حائل</option>
+                    <option value="بقعاء">بقعاء</option>
+                    <option value="الغزالة">الغزالة</option>
+                    <option value="الشملي">الشملي</option>
+                </optgroup>
+                <optgroup label="منطقة الحدود الشمالية">
+                    <option value="عرعر">عرعر</option>
+                    <option value="طريف">طريف</option>
+                    <option value="رفحاء">رفحاء</option>
+                </optgroup>
+                <optgroup label="منطقة الجوف">
+                    <option value="سكاكا">سكاكا</option>
+                    <option value="القريات">القريات</option>
+                    <option value="دومة الجندل">دومة الجندل</option>
+                </optgroup>
+                <optgroup label="منطقة الباحة">
+                    <option value="الباحة">الباحة</option>
+                    <option value="بلجرشي">بلجرشي</option>
+                    <option value="المندق">المندق</option>
+                    <option value="المخواة">المخواة</option>
+                </optgroup>
+                <optgroup label="منطقة جازان">
+                    <option value="جازان">جازان</option>
+                    <option value="صبيا">صبيا</option>
+                    <option value="أبو عريش">أبو عريش</option>
+                    <option value="صامطة">صامطة</option>
+                    <option value="بيش">بيش</option>
+                </optgroup>
+                <optgroup label="منطقة نجران">
+                    <option value="نجران">نجران</option>
+                    <option value="شرورة">شرورة</option>
+                    <option value="حبونا">حبونا</option>
+                </optgroup>
+            </select>
+        </div>
+        
+        <!-- Main Categories Grid (4 categories displayed) -->
+        <div class="csc-main-categories">
+            <a href="#" 
+               class="csc-service-box" 
+               data-category="البناء الذاتي والتشطيب"
+               data-url="bina-wa-tashtib">
+                <img src="assets/icons/home-user.svg" alt="البناء الذاتي والتشطيب" width="30" height="30" />
+                <h4>البناء الذاتي والتشطيب</h4>
+            </a>
+            <a href="#" 
+               class="csc-service-box" 
+               data-category="صيانة المنازل الدورية"
+               data-url="siyana-manazil">
+                <img src="assets/icons/tools-reparation.svg" alt="صيانة المنازل الدورية" width="30" height="30" />
+                <h4>صيانة المنازل الدورية</h4>
+            </a>
+            <a href="#" 
+               class="csc-service-box" 
+               data-category="الموردين والمواد"
+               data-url="mawridin-wa-mawad">
+                <img src="assets/icons/supply-chain.svg" alt="الموردين والمواد" width="30" height="30" />
+                <h4>الموردين والمواد</h4>
+            </a>
+            <a href="#" 
+               class="csc-service-box" 
+               data-category="المعدات والخدمات المساندة"
+               data-url="muadat-wa-khidmat">
+                <img src="assets/icons/excavator.svg" alt="المعدات والخدمات المساندة" width="30" height="30" />
+                <h4>المعدات والخدمات المساندة</h4>
+            </a>
+        </div>
+        
+        <!-- Secondary Services Container (hidden by default) -->
+        <div id="secondaryServices" class="csc-secondary-services" style="display: none;">
+            <!-- Secondary services will be dynamically inserted here by JavaScript -->
+        </div>
+        
+        <!-- Go Button (hidden by default, shown when services are selected) -->
+        <button id="goButton" class="csc-go-button" style="display: none;">
+            اذهب
+        </button>
+    </div>
+
+    <!-- Debug Info -->
+    <div class="debug-info">
+        <strong>ملاحظة:</strong> هذا ملف اختبار محلي. عند الضغط على "اذهب"، سيتم عرض URL في console بدلاً من الانتقال الفعلي.
+    </div>
+
+    <script>
+        // AJAX configuration (for WordPress)
+        const cscAjax = {
+            ajaxurl: '/wp-admin/admin-ajax.php',
+            nonce: 'csc_location_nonce'
+        };
+        
+        // Location selection
+        let selectedLocation = '';
+        let locationData = [];
+        
+        // Load locations via AJAX
+        function loadLocationsAjax() {
+            const locationSelect = document.getElementById('locationSelect');
+            if (!locationSelect) return;
+            
+            // Show loading state
+            locationSelect.disabled = true;
+            locationSelect.innerHTML = '<option value="">جاري التحميل...</option>';
+            
+            // AJAX request to load locations
+            const xhr = new XMLHttpRequest();
+            xhr.open('GET', cscAjax.ajaxurl || '/wp-admin/admin-ajax.php', true);
+            xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+            
+            xhr.onreadystatechange = function() {
+                if (xhr.readyState === 4) {
+                    locationSelect.disabled = false;
+                    
+                    if (xhr.status === 200) {
+                        try {
+                            const response = JSON.parse(xhr.responseText);
+                            
+                            if (response.success && response.data && response.data.locations) {
+                                locationData = response.data.locations;
+                                populateLocationSelect(locationSelect, locationData);
+                                
+                                // Load saved location after populating
+                                const savedLocation = localStorage.getItem('csc_selected_location');
+                                if (savedLocation) {
+                                    locationSelect.value = savedLocation;
+                                    selectedLocation = savedLocation;
+                                }
+                            } else {
+                                // Fallback: use default locations if AJAX fails
+                                console.warn('AJAX failed, using default locations');
+                                loadDefaultLocations(locationSelect);
+                            }
+                        } catch (e) {
+                            console.error('Error parsing location data:', e);
+                            loadDefaultLocations(locationSelect);
+                        }
+                    } else {
+                        console.error('AJAX request failed:', xhr.status);
+                        loadDefaultLocations(locationSelect);
+                    }
+                }
+            };
+            
+            // Send request (POST method for better compatibility)
+            const params = new URLSearchParams();
+            params.append('action', 'csc_get_locations');
+            params.append('nonce', cscAjax.nonce || '');
+            xhr.open('POST', cscAjax.ajaxurl || '/wp-admin/admin-ajax.php', true);
+            xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+            xhr.send(params.toString());
+        }
+        
+        // Populate location select with data
+        function populateLocationSelect(select, locations) {
+            select.innerHTML = '<option value="">-- اختر الموقع --</option>';
+            
+            // Group locations by region
+            const regions = {};
+            locations.forEach(location => {
+                const region = location.region || 'أخرى';
+                if (!regions[region]) {
+                    regions[region] = [];
+                }
+                regions[region].push(location);
+            });
+            
+            // Create optgroups
+            Object.keys(regions).sort().forEach(region => {
+                const optgroup = document.createElement('optgroup');
+                optgroup.label = region;
+                
+                regions[region].forEach(location => {
+                    const option = document.createElement('option');
+                    option.value = location.name;
+                    option.textContent = location.name;
+                    optgroup.appendChild(option);
+                });
+                
+                select.appendChild(optgroup);
+            });
+        }
+        
+        // Fallback: Load default locations if AJAX fails
+        function loadDefaultLocations(select) {
+            const defaultLocations = [
+                {region: 'المنطقة الشرقية', name: 'الدمام'},
+                {region: 'المنطقة الشرقية', name: 'الخبر'},
+                {region: 'المنطقة الشرقية', name: 'الظهران'},
+                {region: 'المنطقة الشرقية', name: 'القطيف'},
+                {region: 'المنطقة الشرقية', name: 'الأحساء'},
+                {region: 'منطقة الرياض', name: 'الرياض'},
+                {region: 'منطقة الرياض', name: 'الخرج'},
+                {region: 'منطقة مكة المكرمة', name: 'مكة المكرمة'},
+                {region: 'منطقة مكة المكرمة', name: 'جدة'},
+                {region: 'منطقة مكة المكرمة', name: 'الطائف'},
+                {region: 'منطقة المدينة المنورة', name: 'المدينة المنورة'},
+                {region: 'منطقة المدينة المنورة', name: 'ينبع'},
+                {region: 'منطقة القصيم', name: 'بريدة'},
+                {region: 'منطقة القصيم', name: 'عنيزة'},
+                {region: 'منطقة عسير', name: 'أبها'},
+                {region: 'منطقة عسير', name: 'خميس مشيط'},
+                {region: 'منطقة تبوك', name: 'تبوك'},
+                {region: 'منطقة حائل', name: 'حائل'},
+                {region: 'منطقة الحدود الشمالية', name: 'عرعر'},
+                {region: 'منطقة الجوف', name: 'سكاكا'},
+                {region: 'منطقة الباحة', name: 'الباحة'},
+                {region: 'منطقة جازان', name: 'جازان'},
+                {region: 'منطقة نجران', name: 'نجران'}
+            ];
+            
+            populateLocationSelect(select, defaultLocations);
+            
+            // Load saved location
+            const savedLocation = localStorage.getItem('csc_selected_location');
+            if (savedLocation) {
+                select.value = savedLocation;
+                selectedLocation = savedLocation;
+            }
+        }
+        
+        // Initialize location selector
+        const locationSelect = document.getElementById('locationSelect');
+        if (locationSelect) {
+            // Try to load via AJAX first (for WordPress)
+            if (typeof cscAjax !== 'undefined' && cscAjax.ajaxurl) {
+                // For local testing, use default locations
+                // In WordPress, this will use AJAX
+                loadDefaultLocations(locationSelect);
+            } else {
+                loadDefaultLocations(locationSelect);
+            }
+            
+            // Handle location change
+            locationSelect.addEventListener('change', function(e) {
+                selectedLocation = e.target.value;
+                localStorage.setItem('csc_selected_location', selectedLocation);
+                
+                // Update URL when location changes
+                if (selectedLocation) {
+                    console.log('Location selected:', selectedLocation);
+                }
+            });
+        }
+        
+        // Mock data - same structure as PHP
+        const cscData = {
+            secondaryServices: {
+                'البناء الذاتي والتشطيب': [
+                    {icon: 'fas fa-tools', title: 'تشطيب مواد'},
+                    {icon: 'fas fa-tools', title: 'تشطيب بدون مواد'},
+                    {icon: 'fas fa-tools', title: 'تشطيب أعمال مقطوعة'},
+                    {icon: 'fas fa-tools', title: 'تشطيب صيانة'},
+                    {icon: 'fas fa-tools', title: 'عظم مواد'},
+                    {icon: 'fas fa-tools', title: 'عظم بدون مواد'},
+                    {icon: 'fas fa-tools', title: 'عظم أعمال مقطوعة'},
+                    {icon: 'fas fa-tools', title: 'عظم صيانة'},
+                    {icon: 'fas fa-tools', title: 'عوازل'},
+                    {icon: 'fas fa-tools', title: 'إحلال'},
+                    {icon: 'fas fa-tools', title: 'هدم'},
+                    {icon: 'fas fa-tools', title: 'ترميم'},
+                    {icon: 'fas fa-bolt', title: 'كهرباء تأسيس'},
+                    {icon: 'fas fa-bolt', title: 'كهرباء تشطيب'},
+                    {icon: 'fas fa-bolt', title: 'كهرباء أعمال مقطوعة'},
+                    {icon: 'fas fa-road', title: 'أعمال أرصفة'},
+                    {icon: 'fas fa-tint', title: 'سباكة تأسيس'},
+                    {icon: 'fas fa-tint', title: 'سباكة تشطيب'},
+                    {icon: 'fas fa-tint', title: 'سباكة أعمال مقطوعة'},
+                    {icon: 'fas fa-flask', title: 'فحص تربة'},
+                    {icon: 'fas fa-ruler', title: 'صبغ'},
+                    {icon: 'fas fa-th-large', title: 'تبليط'},
+                    {icon: 'fas fa-paint-roller', title: 'لياسة'},
+                    {icon: 'fas fa-building', title: 'التعدين والقطاع الصخري'},
+                    {icon: 'fas fa-building', title: 'الألمنيوم'},
+                    {icon: 'fas fa-toolbox', title: 'نجارة'},
+                    {icon: 'fas fa-tools', title: 'حدادة'},
+                    {icon: 'fas fa-door-open', title: 'أبواب'},
+                    {icon: 'fas fa-couch', title: 'دربزين'},
+                    {icon: 'fas fa-umbrella', title: 'مظلات'},
+                    {icon: 'fas fa-shield-alt', title: 'سواتر'},
+                    {icon: 'fas fa-window-maximize', title: 'نوافذ'},
+                    {icon: 'fas fa-warehouse', title: 'كراجات'},
+                    {icon: 'fas fa-tint', title: 'ماء'},
+                    {icon: 'fas fa-burn', title: 'غاز'},
+                    {icon: 'fas fa-water', title: 'بيارات'},
+                    {icon: 'fas fa-archway', title: 'الجبس'},
+                    {icon: 'fas fa-gopuram', title: 'الحجر'},
+                    {icon: 'fas fa-th-large', title: 'GRC / جي آر سي'},
+                    {icon: 'fas fa-couch', title: 'تصميم داخلي'},
+                    {icon: 'fas fa-home', title: 'تصميم خارجي'},
+                    {icon: 'fas fa-leaf', title: 'تصميم حدائق'},
+                    {icon: 'fas fa-drafting-compass', title: 'استشارات هندسية'},
+                    {icon: 'fas fa-map', title: 'مخططات'},
+                    {icon: 'fas fa-cogs', title: 'خدمات عامة'},
+                    {icon: 'fas fa-broom', title: 'النظافة ومكافحة الحشرات'},
+                    {icon: 'fas fa-snowflake', title: 'تكييف'},
+                    {icon: 'fas fa-warehouse', title: 'كراجات'},
+                    {icon: 'fas fa-swimming-pool', title: 'مسابح / نوافير / شلالات / تنفيذ الحدائق'},
+                    {icon: 'fas fa-arrow-up', title: 'مصاعد'},
+                    {icon: 'fas fa-utensils', title: 'المطابخ'},
+                    {icon: 'fas fa-shield-alt', title: 'خدمات الأمان والسلامة والبيوت الذكية'}
+                ],
+                'صيانة المنازل الدورية': [
+                    {icon: 'fas fa-tint', title: 'سباكة'},
+                    {icon: 'fas fa-bolt', title: 'كهرباء'},
+                    {icon: 'fas fa-snowflake', title: 'التكييف'},
+                    {icon: 'fas fa-toolbox', title: 'نجارة وتركيب اثاث'},
+                    {icon: 'fas fa-broom', title: 'نظافة'},
+                    {icon: 'fas fa-blender', title: 'أجهزة منزليه'},
+                    {icon: 'fas fa-bug', title: 'مكافحة حشرات'},
+                    {icon: 'fas fa-tint', title: 'تسريبات'}
+                ],
+                'الموردين والمواد': [
+                    {icon: 'fas fa-tint', title: 'سباكة'},
+                    {icon: 'fas fa-bolt', title: 'كهرباء'},
+                    {icon: 'fas fa-tint', title: 'ماء'},
+                    {icon: 'fas fa-water', title: 'الصرف الصحي'},
+                    {icon: 'fas fa-mountain', title: 'رمل'},
+                    {icon: 'fas fa-hammer', title: 'حديد'},
+                    {icon: 'fas fa-th', title: 'طابوق'},
+                    {icon: 'fas fa-cubes', title: 'خرسانة'},
+                    {icon: 'fas fa-gem', title: 'حجر'},
+                    {icon: 'fas fa-fill-drip', title: 'عزل مائي وحراري'},
+                    {icon: 'fas fa-truck-loading', title: 'بيس كورس'},
+                    {icon: 'fas fa-tree', title: 'خشب'},
+                    {icon: 'fas fa-window-maximize', title: 'ألمنيوم'}
+                ],
+                'المعدات والخدمات المساندة': [
+                    {icon: 'fas fa-database', title: 'تأجير خزانات'},
+                    {icon: 'fas fa-truck-pickup', title: 'معدات خفيفة'},
+                    {icon: 'fas fa-truck-moving', title: 'معدات ثقيلة'},
+                    {icon: 'fas fa-tractor', title: 'بوكلين'},
+                    {icon: 'fas fa-truck', title: 'شيول'},
+                    {icon: 'fas fa-forklift', title: 'فورك لفت / رافعه شوكية'},
+                    {icon: 'fas fa-crane', title: 'كرين'},
+                    {icon: 'fas fa-compress', title: 'رصاصه'},
+                    {icon: 'fas fa-ladder', title: 'سقالات'},
+                    {icon: 'fas fa-recycle', title: 'سكراب'},
+                    {icon: 'fas fa-box', title: 'حاويات'}
+                ]
+            }
+        };
+
+        (function() {
+            'use strict';
+            
+            // Wait for DOM to be fully ready
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', initServices);
+            } else {
+                setTimeout(initServices, 100);
+            }
+            
+            function initServices() {
+                const carousel = document.querySelector('.csc-service-carousel');
+                if (!carousel) {
+                    console.log('Service container not found on page');
+                    return;
+                }
+                
+                const secondaryServicesContainer = document.getElementById("secondaryServices");
+                const goButton = document.getElementById("goButton");
+
+                if (!secondaryServicesContainer) {
+                    console.error("Secondary services container not found");
+                    return;
+                }
+                
+                if (!goButton) {
+                    console.error("Go button not found");
+                    return;
+                }
+                
+                if (typeof cscData === 'undefined' || !cscData || !cscData.secondaryServices) {
+                    console.error("cscData is not defined.");
+                    return;
+                }
+
+                let selectedSecondaryServices = new Set();
+
+                goButton.addEventListener('click', onGoButtonClick);
+
+                function onGoButtonClick(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+
+                    if (selectedSecondaryServices.size === 0) {
+                        alert("يرجى اختيار خدمة فرعية أولاً");
+                        return;
+                    }
+
+                    const selectedMainService = carousel.querySelector(".csc-service-box.marked");
+                    if (!selectedMainService) {
+                        alert("يرجى اختيار خدمة رئيسية أولاً");
+                        return;
+                    }
+
+                    const selectedCategory = selectedMainService.getAttribute("data-category");
+                    const baseUrl = selectedMainService.getAttribute("data-url");
+
+                    if (!selectedCategory || !baseUrl) {
+                        alert("تعذر تحديد الخدمة. حاول مرة أخرى.");
+                        return;
+                    }
+
+                    updateURL(baseUrl, selectedCategory);
+                }
+
+                function updateURL(baseUrl, category) {
+                    if (!baseUrl || !category) {
+                        console.error("Missing baseUrl or category");
+                        return;
+                    }
+                    
+                    try {
+                        // For local testing, we'll just log the URL instead of redirecting
+                        const origin = window.location.origin || 'https://example.com';
+                        const safeBase = String(baseUrl).replace(/^\/+|\/+$/g, '');
+                        const url = new URL(`${origin}/directory-category/${safeBase}/`);
+
+                        if (category === "البناء الذاتي والتشطيب") {
+                            selectedSecondaryServices.forEach(service => {
+                                url.searchParams.append("filter_field_constarcion[]", service);
+                            });
+                            url.searchParams.append("drts-search", "1");
+                            url.searchParams.append("search_keyword[text]", "البناء الذاتي والتشطيب");
+                            url.searchParams.append("search_keyword[id]", "83");
+                            url.searchParams.append("search_keyword[taxonomy]", "directory_category");
+                            url.searchParams.append("filter_location_address[radius]", "84");
+                        } else if (category === "صيانة المنازل الدورية") {
+                            selectedSecondaryServices.forEach(service => {
+                                url.searchParams.append("filter_field_maintenance[]", service);
+                            });
+                            url.searchParams.append("drts-search", "1");
+                            url.searchParams.append("search_keyword[text]", "صيانة المنازل الدورية");
+                            url.searchParams.append("search_keyword[id]", "85");
+                            url.searchParams.append("search_keyword[taxonomy]", "directory_category");
+                            url.searchParams.append("filter_location_address[radius]", "84");
+                        } else if (category === "الموردين والمواد") {
+                            selectedSecondaryServices.forEach(service => {
+                                url.searchParams.append("filter_field_sourcing[]", service);
+                            });
+                            url.searchParams.append("drts-search", "1");
+                            url.searchParams.append("search_keyword[text]", "الموردين والمواد");
+                            url.searchParams.append("search_keyword[id]", "37");
+                            url.searchParams.append("search_keyword[taxonomy]", "directory_category");
+                            url.searchParams.append("filter_location_address[radius]", "84");
+                        } else if (category === "المعدات والخدمات المساندة") {
+                            selectedSecondaryServices.forEach(service => {
+                                url.searchParams.append("filter_field_hiring[]", service);
+                            });
+                            url.searchParams.append("drts-search", "1");
+                            url.searchParams.append("search_keyword[text]", "المعدات والخدمات المساندة");
+                            url.searchParams.append("search_keyword[id]", "87");
+                            url.searchParams.append("search_keyword[taxonomy]", "directory_category");
+                            url.searchParams.append("filter_location_address[radius]", "84");
+                        } else {
+                            url.searchParams.append("drts-search", "1");
+                            url.searchParams.append("search_keyword[text]", category);
+                            url.searchParams.append("search_keyword[taxonomy]", "directory_category");
+                            url.searchParams.append("filter_location_address[radius]", "84");
+                        }
+
+                        url.searchParams.append("filter", "1");
+                        url.searchParams.append("sort", "post_published");
+
+                        // Add location to URL if selected
+                        if (selectedLocation) {
+                            url.searchParams.append("location", selectedLocation);
+                        }
+
+                        // For local testing: show URL in alert instead of redirecting
+                        console.log("URL would redirect to:", url.toString());
+                        console.log("Selected Location:", selectedLocation || 'None');
+                        alert("URL جاهز:\n\n" + url.toString() + "\n\n(في الموقع الفعلي سيتم الانتقال تلقائياً)");
+                        
+                        // Uncomment the line below to actually redirect (for testing on a real server)
+                        // window.location.href = url.toString();
+                    } catch (error) {
+                        console.error("Error building URL:", error);
+                        alert("حدث خطأ في بناء الرابط. يرجى المحاولة مرة أخرى.");
+                    }
+                }
+                
+                carousel.addEventListener("click", function(e) {
+                    const serviceBox = e.target.closest('.csc-main-categories .csc-service-box');
+                    if (serviceBox) {
+                        e.preventDefault();
+                        const category = serviceBox.getAttribute("data-category");
+                        const url = serviceBox.getAttribute("data-url");
+
+                        carousel.querySelectorAll(".csc-main-categories .csc-service-box").forEach(b => b.classList.remove("marked"));
+
+                        if (category) {
+                            serviceBox.classList.add("marked");
+                            
+                            if (cscData.secondaryServices[category]) {
+                                secondaryServicesContainer.style.display = "flex";
+                                selectedSecondaryServices = new Set();
+                                goButton.style.display = "none";
+                                secondaryServicesContainer.innerHTML = "";
+
+                                cscData.secondaryServices[category].forEach(service => {
+                                    const serviceBoxEl = document.createElement("a");
+                                    serviceBoxEl.className = "csc-service-box";
+                                    serviceBoxEl.href = "#";
+                                    serviceBoxEl.innerHTML = `
+                                        <i class="${service.icon}"></i>
+                                        <h4>${service.title}</h4>
+                                    `;
+
+                                    serviceBoxEl.addEventListener("click", (e) => {
+                                        e.preventDefault();
+                                        e.stopPropagation();
+                                        serviceBoxEl.classList.toggle("marked");
+
+                                        if (serviceBoxEl.classList.contains("marked")) {
+                                            selectedSecondaryServices.add(service.title);
+                                        } else {
+                                            selectedSecondaryServices.delete(service.title);
+                                        }
+
+                                        if (selectedSecondaryServices.size > 0) {
+                                            goButton.style.display = "block";
+                                        } else {
+                                            goButton.style.display = "none";
+                                        }
+                                    });
+
+                                    secondaryServicesContainer.appendChild(serviceBoxEl);
+                                });
+                            } else {
+                                selectedSecondaryServices = new Set();
+                                secondaryServicesContainer.style.display = "none";
+                                goButton.style.display = "none";
+                                updateURL(url, category);
+                            }
+                        }
+                    } else if (e.target.closest('#goButton') == null) {
+                        selectedSecondaryServices = new Set();
+                        secondaryServicesContainer.style.display = "none";
+                        goButton.style.display = "none";
+                        carousel.querySelectorAll(".csc-main-categories .csc-service-box").forEach(b => b.classList.remove("marked"));
+                    }
+                });
+            }
+        })();
+    </script>
+</body>
+</html>
+

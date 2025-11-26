@@ -1,0 +1,610 @@
+/* Import Cairo font */
+@import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700&display=swap');
+
+/* Basic reset */
+* {
+    -webkit-tap-highlight-color: transparent;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    user-select: none;
+}
+
+body {
+    /* margin: 0; */
+    /* padding: 0; */
+    /* background: #f5f5f5; */
+    /* min-height: 100vh; */
+    /* font-family: "Cairo", sans-serif; */
+    /* text-align: right; */
+    /* padding: 40px 20px; */
+    /* overflow-x: hidden; */
+    /* -webkit-font-smoothing: antialiased; */
+    -moz-osx-font-smoothing: grayscale;
+}
+
+/* Service container */
+.csc-service-carousel {
+    width: 100%;
+    max-width: 1400px;
+    margin: 0 auto;
+    /* padding: 30px; */
+    position: relative;
+    direction: rtl;
+    /* background: #ffffff; */
+    /* border-radius: 8px; */
+    /* box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); */
+    /* font-family: "Cairo", sans-serif; */
+    /* box-sizing: border-box; */
+}
+
+/* Main Categories - Always in one line */
+.csc-main-categories {
+    display: flex;
+    flex-direction: row;
+    gap: 20px;
+    margin-bottom: 32px;
+    padding: 0;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    width: 100%;
+}
+
+.csc-main-categories .csc-service-box {
+    flex: 1;
+    min-width: 0;
+    flex-shrink: 1;
+}
+
+@media (max-width: 1200px) {
+    .csc-main-categories {
+        gap: 20px;
+    }
+}
+
+@media (max-width: 992px) {
+    .csc-main-categories {
+        gap: 16px;
+    }
+    
+    .csc-main-categories .csc-service-box {
+        min-width: 150px;
+    }
+}
+
+@media (max-width: 768px) {
+    .csc-main-categories {
+        gap: 12px;
+        margin-bottom: 24px;
+    }
+    
+    .csc-main-categories .csc-service-box {
+        flex: 1;
+        min-width: 120px;
+    }
+}
+
+@media (max-width: 576px) {
+    .csc-main-categories {
+        gap: 10px;
+        margin-bottom: 24px;
+    }
+    
+    .csc-main-categories .csc-service-box {
+        flex: 1;
+        min-width: 100px;
+    }
+}
+
+/* Service box style - Main categories (grid) */
+.csc-main-categories .csc-service-box {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 0;
+    text-decoration: none;
+    background: #2196F3;
+    border: none;
+    border-radius: 16px;
+    padding: 28px 20px 24px 20px;
+    box-shadow: 0 4px 16px rgba(33, 150, 243, 0.25);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    color: #ffffff;
+    width: 100%;
+    word-wrap: break-word;
+    text-align: center;
+    cursor: pointer;
+    position: relative;
+    min-height: 200px;
+    font-family: "Cairo", sans-serif;
+    box-sizing: border-box;
+    transform: scale(1);
+    will-change: transform, box-shadow;
+}
+
+.csc-main-categories .csc-service-box:active {
+    transform: scale(0.98);
+    transition: transform 0.1s ease;
+}
+
+@media (max-width: 992px) {
+    .csc-main-categories .csc-service-box {
+        padding: 24px 16px 20px 16px;
+        min-height: 180px;
+    }
+}
+
+@media (max-width: 576px) {
+    .csc-main-categories .csc-service-box {
+        padding: 20px 16px 18px 16px;
+        min-height: 160px;
+    }
+}
+
+/* Service box style - Secondary services (horizontal) */
+.csc-secondary-services .csc-service-box {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    text-decoration: none;
+    background: #F7FAFC;
+    border: 1px solid #E2E8F0;
+    /* border-radius: 50px; */
+    padding: 8px 20px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    color: #2D3748;
+    word-wrap: nowrap;
+    white-space: nowrap;
+    text-align: center;
+    cursor: pointer;
+    position: relative;
+    transform: scale(1);
+    will-change: transform, box-shadow;
+    flex-shrink: 0;
+    min-width: fit-content;
+    max-width: 100%;
+    box-sizing: border-box;
+}
+
+/* Responsive padding and font size */
+@media (min-width: 1200px) {
+    .csc-secondary-services .csc-service-box {
+        padding: 10px 24px;
+    }
+    
+    .csc-secondary-services .csc-service-box h4 {
+        font-size: 14px;
+    }
+}
+
+@media (min-width: 992px) and (max-width: 1199px) {
+    .csc-secondary-services .csc-service-box {
+        padding: 9px 22px;
+    }
+    
+    .csc-secondary-services .csc-service-box h4 {
+        font-size: 13.5px;
+    }
+}
+
+@media (min-width: 768px) and (max-width: 991px) {
+    .csc-secondary-services .csc-service-box {
+        padding: 8px 20px;
+    }
+    
+    .csc-secondary-services .csc-service-box h4 {
+        font-size: 13px;
+    }
+}
+
+.csc-secondary-services .csc-service-box:active {
+    transform: scale(0.96);
+    transition: transform 0.1s ease;
+}
+
+/* Remove border indicator for grid layout */
+.csc-secondary-services .csc-service-box::before {
+    display: none;
+}
+
+.csc-main-categories .csc-service-box:hover {
+    transform: translateY(-6px) scale(1.02);
+    box-shadow: 0 8px 24px rgba(33, 150, 243, 0.4);
+    background: #c3c3c3;
+}
+
+.csc-main-categories .csc-service-box:hover:active {
+    transform: translateY(-2px) scale(0.98);
+}
+
+.csc-main-categories .csc-service-box:hover h4 {
+    color: #ffffff;
+}
+
+.csc-secondary-services .csc-service-box:hover {
+    transform: translateY(-2px) scale(1.02);
+    box-shadow: 0 4px 12px rgba(33, 150, 243, 0.2);
+    border-color: #3182CE;
+    background: #EDF2F7;
+}
+
+.csc-secondary-services .csc-service-box:hover:active {
+    transform: translateY(0) scale(0.96);
+}
+
+/* Icon container */
+.csc-main-categories .csc-service-box {
+    position: relative;
+}
+
+/* Icon background removed */
+
+/* Icon style - Main categories */
+.csc-main-categories .csc-service-box svg,
+.csc-main-categories .csc-service-box img {
+    width: 42px;
+    height: 42px;
+    padding: 0;
+    border-radius: 0;
+    background: transparent;
+    color: #ffffff;
+    fill: #ffffff;
+    display: block;
+    position: absolute;
+    top: 32px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 1;
+    margin: 0;
+    box-shadow: none;
+    transition: all 0.3s ease;
+    object-fit: contain;
+    box-sizing: border-box;
+    flex-shrink: 0;
+}
+
+.csc-main-categories .csc-service-box svg path,
+.csc-main-categories .csc-service-box svg {
+    fill: #ffffff !important;
+    stroke: #ffffff !important;
+    color: #ffffff !important;
+}
+
+/* Icon background hover removed */
+
+.csc-main-categories .csc-service-box:hover svg,
+.csc-main-categories .csc-service-box:hover img {
+    transform: translateX(-50%) scale(1.08);
+    filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.15));
+}
+
+/* Icon style - Secondary services */
+.csc-secondary-services .csc-service-box i {
+    width: 35px;
+    height: 35px;
+    border-radius: 50%;
+    background: #ffffff;
+    color: #898989;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    box-shadow: 0 2px 4px rgba(33, 150, 243, 0.2);
+    flex-shrink: 0;
+    transition: all 0.3s ease;
+}
+
+.csc-secondary-services .csc-service-box:hover i {
+    transform: scale(1.1);
+    background: #ffffff;
+    box-shadow: 0 4px 12px rgba(33, 150, 243, 0.4);
+}
+
+.csc-secondary-services .csc-service-box.marked i {
+    background: #ffffff;
+    box-shadow: 0 2px 8px rgba(25, 118, 210, 0.3);
+}
+
+/* Title style - Main categories */
+.csc-main-categories .csc-service-box h4 {
+    margin: 0;
+    margin-top: 110px;
+    font-size: 17px;
+    font-weight: 500;
+    color: #ffffff;
+    line-height: 1.6;
+    white-space: normal;
+    overflow: visible;
+    text-overflow: clip;
+    transition: all 0.3s ease;
+    font-family: "Cairo", sans-serif;
+}
+
+/* Title style - Secondary services */
+.csc-secondary-services .csc-service-box h4 {
+    margin: 0;
+    font-size: 13px;
+    font-weight: 500;
+    color: #2D3748;
+    line-height: 1.4;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    transition: all 0.3s ease;
+    font-family: "Cairo", sans-serif;
+    text-align: center;
+}
+
+.csc-secondary-services .csc-service-box:hover h4 {
+    color: #2C5282;
+}
+
+.csc-secondary-services .csc-service-box.marked h4 {
+    color: #ffffff;
+    font-weight: 600;
+}
+
+/* Swiper styles removed - no longer needed */
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .csc-service-carousel {
+        padding: 20px;
+    }
+    
+    .csc-main-categories .csc-service-box h4 {
+        font-size: 15px;
+        margin-top: 80px;
+    }
+    
+    /* Icon background removed in responsive */
+    
+    .csc-main-categories .csc-service-box svg,
+    .csc-main-categories .csc-service-box img {
+        width: 36px;
+        height: 36px;
+        top: 28px;
+    }
+    
+    .csc-secondary-services {
+        padding: 14px 0 !important;
+        gap: 9px;
+    }
+    
+    .csc-secondary-services .csc-service-box {
+        padding: 7px 19px;
+    }
+    
+    .csc-secondary-services .csc-service-box h4 {
+        font-size: 12.5px;
+    }
+}
+
+@media (max-width: 576px) {
+    .csc-service-carousel {
+        padding: 0px;
+    }
+    
+    .csc-main-categories .csc-service-box h4 {
+        font-size: 14px;
+        margin-top: 70px;
+    }
+    
+    /* Icon background removed in responsive */
+    
+    .csc-main-categories .csc-service-box svg,
+    .csc-main-categories .csc-service-box img {
+        width: 32px;
+        height: 32px;
+        top: 24px;
+    }
+    
+    .csc-secondary-services {
+        padding: 12px 0 !important;
+        gap: 8px;
+    }
+    
+    .csc-secondary-services .csc-service-box {
+        padding: 6px 18px;
+    }
+    
+    .csc-secondary-services .csc-service-box h4 {
+        font-size: 12px;
+    }
+}
+
+/* Secondary services container - Horizontal scrollable */
+.csc-secondary-services {
+    display: none; /* Hidden by default, shown via JavaScript */
+    margin-top: 24px;
+    padding: 20px 0;
+    background: transparent;
+    animation: slideDown 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    will-change: transform, opacity;
+    overflow-x: auto;
+    overflow-y: hidden;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: thin;
+    scrollbar-color: #CBD5E0 #F7FAFC;
+}
+
+/* Force secondary services to appear as horizontal flex */
+.csc-secondary-services {
+    display: flex !important;
+    flex-direction: row;
+    gap: 10px;
+    padding: 16px 0 !important;
+}
+
+/* Responsive gap */
+@media (min-width: 1200px) {
+    .csc-secondary-services {
+        gap: 12px;
+        padding: 18px 0 !important;
+    }
+}
+
+@media (min-width: 992px) and (max-width: 1199px) {
+    .csc-secondary-services {
+        gap: 11px;
+        padding: 17px 0 !important;
+    }
+}
+
+@media (min-width: 768px) and (max-width: 991px) {
+    .csc-secondary-services {
+        gap: 10px;
+        padding: 16px 0 !important;
+    }
+}
+
+.csc-secondary-services[style*="display: flex"],
+.csc-secondary-services[style*="display:flex"],
+.csc-secondary-services[style*="display: grid"],
+.csc-secondary-services[style*="display:grid"] {
+    display: flex !important;
+    flex-direction: row !important;
+    gap: 12px;
+}
+
+/* Custom scrollbar for webkit browsers */
+.csc-secondary-services::-webkit-scrollbar {
+    height: 6px;
+}
+
+.csc-secondary-services::-webkit-scrollbar-track {
+    background: #F7FAFC;
+    border-radius: 10px;
+}
+
+.csc-secondary-services::-webkit-scrollbar-thumb {
+    background: #CBD5E0;
+    border-radius: 10px;
+}
+
+.csc-secondary-services::-webkit-scrollbar-thumb:hover {
+    background: #A0AEC0;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-20px) scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes pulse {
+    0%, 100% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.05);
+    }
+}
+
+/* Marked (selected) style - Main categories */
+.csc-main-categories .csc-service-box.marked {
+    box-shadow: 0 8px 24px rgba(33, 150, 243, 0.5);
+    transform: translateY(-6px) scale(1.02);
+    background: #1565C0;
+    animation: pulse 2s ease-in-out infinite;
+}
+
+.csc-main-categories .csc-service-box.marked h4 {
+    color: #ffffff;
+    font-weight: 600;
+}
+
+/* Icon background marked removed */
+
+.csc-main-categories .csc-service-box.marked svg,
+.csc-main-categories .csc-service-box.marked img {
+    transform: translateX(-50%) scale(1.05);
+}
+
+/* Marked (selected) style - Secondary services */
+.csc-secondary-services .csc-service-box.marked {
+    box-shadow: 0 4px 12px rgba(49, 130, 206, 0.3);
+    transform: translateY(-2px);
+    /* border-color: #007fff; */
+    background: #2196f3;
+    animation: fadeIn 0.3s ease-out;
+}
+
+.csc-secondary-services .csc-service-box.marked h4 {
+    color: #ffffff;
+    font-weight: 600;
+}
+
+.csc-secondary-services .csc-service-box.marked i {
+    background: #ffffff;
+    box-shadow: 0 2px 8px rgba(25, 118, 210, 0.3);
+}
+
+/* Go Button */
+.csc-go-button {
+    display: none; /* Hidden by default */
+    margin-top: 24px;
+    padding: 16px 40px;
+    background: linear-gradient(135deg, #2196F3 0%, #1976D2 100%);
+    color: #fff;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: 600;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 4px 12px rgba(33, 150, 243, 0.35);
+    font-family: "Cairo", sans-serif;
+    position: relative;
+    overflow: hidden;
+    transform: scale(1);
+    will-change: transform, box-shadow;
+    animation: fadeIn 0.3s ease-out;
+}
+
+.csc-go-button::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.3);
+    transform: translate(-50%, -50%);
+    transition: width 0.6s, height 0.6s;
+}
+
+.csc-go-button:hover {
+    background: linear-gradient(135deg, #1976D2 0%, #1565C0 100%);
+    box-shadow: 0 6px 20px rgba(33, 150, 243, 0.45);
+    transform: translateY(-2px) scale(1.02);
+}
+
+.csc-go-button:active {
+    transform: translateY(0) scale(0.98);
+    box-shadow: 0 2px 8px rgba(33, 150, 243, 0.3);
+}
+
+.csc-go-button:active::before {
+    width: 300px;
+    height: 300px;
+} 

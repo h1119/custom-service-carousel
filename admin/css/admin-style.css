@@ -1,0 +1,331 @@
+/* Main Admin Container */
+.service-carousel-admin {
+    max-width: 1200px;
+    margin: 20px auto;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
+}
+
+/* Header Styling */
+.service-carousel-admin h1 {
+    color: #1d2327;
+    font-size: 24px;
+    font-weight: 600;
+    margin-bottom: 30px;
+    padding-bottom: 15px;
+    border-bottom: 2px solid #f0f0f1;
+}
+
+/* Form Table Styling */
+.service-carousel-admin .form-table {
+    background: #fff;
+    padding: 25px;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    margin-bottom: 30px;
+    border: 1px solid #e2e4e7;
+}
+
+.service-carousel-admin .form-table th {
+    padding: 20px;
+    width: 250px;
+    font-weight: 600;
+    color: #1d2327;
+    vertical-align: top;
+}
+
+.service-carousel-admin .form-table td {
+    padding: 20px;
+    vertical-align: middle;
+}
+
+/* Section Headers */
+.service-carousel-admin h2 {
+    color: #1d2327;
+    font-size: 18px;
+    font-weight: 600;
+    margin: 30px 0 20px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #e2e4e7;
+}
+
+/* Input Fields Styling */
+.service-carousel-admin input[type="number"] {
+    width: 120px;
+    padding: 8px 12px;
+    border: 1px solid #8c8f94;
+    border-radius: 4px;
+    font-size: 14px;
+    transition: all 0.3s ease;
+}
+
+.service-carousel-admin input[type="number"]:focus {
+    border-color: #2271b1;
+    box-shadow: 0 0 0 1px #2271b1;
+    outline: none;
+}
+
+.service-carousel-admin input[type="color"] {
+    width: 120px;
+    height: 40px;
+    padding: 0;
+    border: 1px solid #8c8f94;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.service-carousel-admin input[type="color"]:focus {
+    border-color: #2271b1;
+    box-shadow: 0 0 0 1px #2271b1;
+    outline: none;
+}
+
+/* Select Dropdowns */
+.service-carousel-admin select {
+    width: 200px;
+    padding: 8px 12px;
+    border: 1px solid #8c8f94;
+    border-radius: 4px;
+    font-size: 14px;
+    background-color: #fff;
+    transition: all 0.3s ease;
+}
+
+.service-carousel-admin select:focus {
+    border-color: #2271b1;
+    box-shadow: 0 0 0 1px #2271b1;
+    outline: none;
+}
+
+/* Checkbox Styling */
+.service-carousel-admin input[type="checkbox"] {
+    width: 20px;
+    height: 20px;
+    margin: 0 8px 0 0;
+    cursor: pointer;
+}
+
+/* Preview Section */
+.service-carousel-admin .preview-section {
+    margin-top: 40px;
+    padding: 25px;
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    border: 1px solid #e2e4e7;
+}
+
+.service-carousel-admin .preview-section h2 {
+    margin-top: 0;
+    padding-bottom: 15px;
+    border-bottom: 2px solid #f0f0f1;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+/* Preview Container */
+.service-carousel-admin .preview-container {
+    padding: 25px;
+    background: #f9f9f9;
+    border-radius: 8px;
+    margin-top: 20px;
+    border: 1px solid #e2e4e7;
+    transition: all 0.3s ease;
+}
+
+/* Device Preview Buttons */
+.service-carousel-admin .preview-devices {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 25px;
+    background: #f0f0f1;
+    padding: 10px;
+    border-radius: 8px;
+    width: fit-content;
+}
+
+.service-carousel-admin .preview-device {
+    padding: 10px 20px;
+    background: #fff;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-weight: 500;
+    color: #50575e;
+    border: 1px solid #e2e4e7;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.service-carousel-admin .preview-device:before {
+    content: '';
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    background-size: contain;
+    background-repeat: no-repeat;
+}
+
+.service-carousel-admin .preview-device[data-device="desktop"]:before {
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%2350575e"><path d="M4 6h16V4H4c-1.1 0-2 .9-2 2v11H0v3h14v-3H4V6zm19 2h-6c-.55 0-1 .45-1 1v10c0 .55.45 1 1 1h6c.55 0 1-.45 1-1V9c0-.55-.45-1-1-1zm-1 10h-4V10h4v8z"/></svg>');
+}
+
+.service-carousel-admin .preview-device[data-device="tablet"]:before {
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%2350575e"><path d="M21 4H3c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h18c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm-2 14H5V6h14v12z"/></svg>');
+}
+
+.service-carousel-admin .preview-device[data-device="mobile"]:before {
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%2350575e"><path d="M17 1H7c-1.1 0-2 .9-2 2v18c0 1.1.9 2 2 2h10c1.1 0 2-.9 2-2V3c0-1.1-.9-2-2-2zm0 18H7V5h10v14z"/></svg>');
+}
+
+.service-carousel-admin .preview-device.active {
+    background: #2271b1;
+    color: #fff;
+    border-color: #2271b1;
+}
+
+.service-carousel-admin .preview-device.active:before {
+    filter: brightness(0) invert(1);
+}
+
+/* Live Preview */
+.service-carousel-admin .live-preview {
+    border: 1px solid #e2e4e7;
+    padding: 25px;
+    margin-top: 20px;
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.service-carousel-admin .live-preview .service-box {
+    margin: 10px;
+    transition: all 0.3s ease;
+    border: 1px solid #e2e4e7;
+    border-radius: 8px;
+    padding: 15px;
+    background: #fff;
+}
+
+.service-carousel-admin .live-preview .service-box:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+/* Color Picker */
+.service-carousel-admin .wp-picker-container {
+    display: inline-block;
+    vertical-align: middle;
+}
+
+.service-carousel-admin .wp-picker-container .wp-color-result {
+    margin: 0;
+    border: 1px solid #8c8f94;
+    border-radius: 4px;
+}
+
+.service-carousel-admin .wp-picker-container .wp-color-result:focus {
+    border-color: #2271b1;
+    box-shadow: 0 0 0 1px #2271b1;
+    outline: none;
+}
+
+/* Save Button */
+.service-carousel-admin .submit {
+    margin-top: 30px;
+    padding-top: 20px;
+    border-top: 1px solid #e2e4e7;
+}
+
+.service-carousel-admin .button-primary {
+    padding: 8px 20px;
+    height: auto;
+    line-height: 1.4;
+    font-size: 14px;
+    font-weight: 500;
+    border-radius: 4px;
+    transition: all 0.3s ease;
+}
+
+.service-carousel-admin .button-primary:hover {
+    background: #135e96;
+    border-color: #135e96;
+}
+
+/* Help Text */
+.service-carousel-admin .description {
+    color: #646970;
+    font-style: italic;
+    margin-top: 5px;
+    font-size: 13px;
+}
+
+/* Responsive Design */
+@media screen and (max-width: 782px) {
+    .service-carousel-admin .form-table th {
+        width: 100%;
+        display: block;
+        padding-bottom: 0;
+    }
+    
+    .service-carousel-admin .form-table td {
+        display: block;
+        padding-top: 0;
+    }
+    
+    .service-carousel-admin .preview-devices {
+        flex-direction: column;
+    }
+    
+    .service-carousel-admin .preview-device {
+        width: 100%;
+        justify-content: center;
+    }
+}
+
+/* Loading State */
+.service-carousel-admin .loading {
+    position: relative;
+    pointer-events: none;
+    opacity: 0.7;
+}
+
+.service-carousel-admin .loading:after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 20px;
+    height: 20px;
+    margin: -10px 0 0 -10px;
+    border: 2px solid #f0f0f1;
+    border-top-color: #2271b1;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+/* Success Message */
+.service-carousel-admin .notice-success {
+    border-left-color: #46b450;
+    padding: 12px 15px;
+    margin: 20px 0;
+    border-radius: 4px;
+    background: #ecf7ed;
+    border: 1px solid #c3e6cb;
+}
+
+/* Error Message */
+.service-carousel-admin .notice-error {
+    border-left-color: #dc3232;
+    padding: 12px 15px;
+    margin: 20px 0;
+    border-radius: 4px;
+    background: #fbeaea;
+    border: 1px solid #f8d7da;
+} 
