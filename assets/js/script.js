@@ -1,4 +1,4 @@
-(function() {
+(function($) {
     'use strict';
     
     // Location selection
@@ -7,68 +7,67 @@
     
     // Load locations via AJAX
     function loadLocationsAjax() {
-        const locationSelect = document.getElementById('locationSelect');
-        if (!locationSelect) return;
+        const $locationSelect = $('#locationSelect');
+        if (!$locationSelect.length) return;
         
         // Show loading state
-        locationSelect.disabled = true;
-        locationSelect.innerHTML = '<option value="">جاري التحميل...</option>';
+        $locationSelect.prop('disabled', true).html('<option value="">جاري التحميل...</option>');
         
         // AJAX request to load locations
-        const xhr = new XMLHttpRequest();
-        xhr.open('GET', cscAjax.ajaxurl || '/wp-admin/admin-ajax.php', true);
-        xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
-        
-        xhr.onreadystatechange = function() {
-            if (xhr.readyState === 4) {
-                locationSelect.disabled = false;
+        $.ajax({
+            url: (typeof cscAjax !== 'undefined' && cscAjax.ajaxurl) ? cscAjax.ajaxurl : '/wp-admin/admin-ajax.php',
+            type: 'POST',
+            data: {
+                action: 'csc_get_locations',
+                nonce: (typeof cscAjax !== 'undefined' && cscAjax.nonce) ? cscAjax.nonce : ''
+            },
+            dataType: 'json',
+            success: function(response) {
+                $locationSelect.prop('disabled', false);
                 
-                if (xhr.status === 200) {
-                    try {
-                        const response = JSON.parse(xhr.responseText);
+                if (response && response.success && response.data && response.data.locations) {
+                    locationData = response.data.locations;
+                    populateLocationSelect($locationSelect, locationData);
+                    
+                    // Rebuild custom select after locations are loaded
+                    if (typeof initCustomSelect === 'function') {
+                        setTimeout(initCustomSelect, 50);
+                    }
+                    
+                    // Load saved location after populating
+                    const savedLocation = localStorage.getItem('csc_selected_location');
+                    if (savedLocation) {
+                        $locationSelect.val(savedLocation);
+                        selectedLocation = savedLocation;
                         
-                        if (response.success && response.data && response.data.locations) {
-                            locationData = response.data.locations;
-                            populateLocationSelect(locationSelect, locationData);
-                            
-                            // Load saved location after populating
-                            const savedLocation = localStorage.getItem('csc_selected_location');
-                            if (savedLocation) {
-                                locationSelect.value = savedLocation;
-                                selectedLocation = savedLocation;
-                            }
-                        } else {
-                            // Fallback: use default locations if AJAX fails
-                            console.warn('AJAX failed, using default locations');
-                            loadDefaultLocations(locationSelect);
+                        // Update custom select display
+                        const $selectedTextSpan = $('#locationCustomSelect .csc-custom-select-button .selected-text');
+                        if ($selectedTextSpan.length) {
+                            const $selectedOption = $locationSelect.find('option:selected');
+                            $selectedTextSpan.text($selectedOption.length ? $selectedOption.text() : savedLocation);
                         }
-                    } catch (e) {
-                        console.error('Error parsing location data:', e);
-                        loadDefaultLocations(locationSelect);
                     }
                 } else {
-                    console.error('AJAX request failed:', xhr.status);
-                    loadDefaultLocations(locationSelect);
+                    // Fallback: use default locations if AJAX fails
+                    console.warn('AJAX failed, using default locations');
+                    loadDefaultLocations($locationSelect);
                 }
+            },
+            error: function(xhr, status, error) {
+                console.error('AJAX request failed:', status, error);
+                $locationSelect.prop('disabled', false);
+                loadDefaultLocations($locationSelect);
             }
-        };
-        
-        // Send request (POST method for better compatibility)
-        const params = new URLSearchParams();
-        params.append('action', 'csc_get_locations');
-        params.append('nonce', cscAjax.nonce || '');
-        xhr.open('POST', cscAjax.ajaxurl || '/wp-admin/admin-ajax.php', true);
-        xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
-        xhr.send(params.toString());
+        });
     }
     
     // Populate location select with data
-    function populateLocationSelect(select, locations) {
-        select.innerHTML = '<option value="">-- اختر الموقع --</option>';
+    function populateLocationSelect($select, locations) {
+        $select.html('<option value="">-- اختر الموقع --</option>');
         
         // Group locations by region
         const regions = {};
-        locations.forEach(location => {
+        $.each(locations, function(index, location) {
             const region = location.region || 'أخرى';
             if (!regions[region]) {
                 regions[region] = [];
@@ -76,137 +75,464 @@
             regions[region].push(location);
         });
         
-        // Create optgroups
-        Object.keys(regions).sort().forEach(region => {
-            const optgroup = document.createElement('optgroup');
-            optgroup.label = region;
+        // Create optgroups (sorted by region name)
+        const sortedRegions = Object.keys(regions).sort();
+        $.each(sortedRegions, function(index, region) {
+            const $optgroup = $('<optgroup>').attr('label', region);
+            const regionLocations = regions[region];
             
-            regions[region].forEach(location => {
-                const option = document.createElement('option');
-                option.value = location.name;
-                option.textContent = location.name;
-                optgroup.appendChild(option);
+            $.each(regionLocations, function(index, location) {
+                const $option = $('<option>')
+                    .attr('value', location.name)
+                    .text(location.name);
+                $optgroup.append($option);
             });
             
-            select.appendChild(optgroup);
+            $select.append($optgroup);
         });
     }
     
     // Fallback: Load default locations if AJAX fails
-    function loadDefaultLocations(select) {
+    function loadDefaultLocations($select) {
         const defaultLocations = [
             {region: 'المنطقة الشرقية', name: 'الدمام'},
             {region: 'المنطقة الشرقية', name: 'الخبر'},
             {region: 'المنطقة الشرقية', name: 'الظهران'},
+            {region: 'المنطقة الشرقية', name: 'القطيف'},
+            {region: 'المنطقة الشرقية', name: 'الأحساء'},
+            {region: 'المنطقة الشرقية', name: 'حفر الباطن'},
+            {region: 'المنطقة الشرقية', name: 'الجبيل'},
+            {region: 'المنطقة الشرقية', name: 'رأس تنورة'},
+            {region: 'المنطقة الشرقية', name: 'بقيق'},
+            {region: 'المنطقة الشرقية', name: 'النعيرية'},
             {region: 'منطقة الرياض', name: 'الرياض'},
+            {region: 'منطقة الرياض', name: 'الخرج'},
+            {region: 'منطقة الرياض', name: 'الدوادمي'},
+            {region: 'منطقة الرياض', name: 'المجمعة'},
+            {region: 'منطقة الرياض', name: 'القويعية'},
+            {region: 'منطقة الرياض', name: 'الأفلاج'},
+            {region: 'منطقة الرياض', name: 'وادي الدواسر'},
+            {region: 'منطقة الرياض', name: 'الزلفي'},
+            {region: 'منطقة الرياض', name: 'شقراء'},
+            {region: 'منطقة الرياض', name: 'حوطة بني تميم'},
             {region: 'منطقة مكة المكرمة', name: 'مكة المكرمة'},
             {region: 'منطقة مكة المكرمة', name: 'جدة'},
+            {region: 'منطقة مكة المكرمة', name: 'الطائف'},
+            {region: 'منطقة مكة المكرمة', name: 'رابغ'},
+            {region: 'منطقة مكة المكرمة', name: 'خليص'},
+            {region: 'منطقة مكة المكرمة', name: 'القنفذة'},
+            {region: 'منطقة مكة المكرمة', name: 'الليث'},
+            {region: 'منطقة مكة المكرمة', name: 'أضم'},
+            {region: 'منطقة مكة المكرمة', name: 'تربة'},
+            {region: 'منطقة مكة المكرمة', name: 'رنية'},
             {region: 'منطقة المدينة المنورة', name: 'المدينة المنورة'},
+            {region: 'منطقة المدينة المنورة', name: 'ينبع'},
+            {region: 'منطقة المدينة المنورة', name: 'العلا'},
+            {region: 'منطقة المدينة المنورة', name: 'المدينة'},
+            {region: 'منطقة المدينة المنورة', name: 'بدر'},
+            {region: 'منطقة المدينة المنورة', name: 'خيبر'},
+            {region: 'منطقة المدينة المنورة', name: 'العيص'},
+            {region: 'منطقة المدينة المنورة', name: 'الحناكية'},
             {region: 'منطقة القصيم', name: 'بريدة'},
+            {region: 'منطقة القصيم', name: 'عنيزة'},
+            {region: 'منطقة القصيم', name: 'الرس'},
+            {region: 'منطقة القصيم', name: 'المذنب'},
+            {region: 'منطقة القصيم', name: 'البكيرية'},
+            {region: 'منطقة القصيم', name: 'البدائع'},
+            {region: 'منطقة القصيم', name: 'الأسياح'},
+            {region: 'منطقة القصيم', name: 'النبهانية'},
             {region: 'منطقة عسير', name: 'أبها'},
+            {region: 'منطقة عسير', name: 'خميس مشيط'},
+            {region: 'منطقة عسير', name: 'نجران'},
+            {region: 'منطقة عسير', name: 'جازان'},
+            {region: 'منطقة عسير', name: 'صبيا'},
+            {region: 'منطقة عسير', name: 'أحد رفيدة'},
+            {region: 'منطقة عسير', name: 'محايل عسير'},
+            {region: 'منطقة عسير', name: 'النماص'},
+            {region: 'منطقة عسير', name: 'بلقرن'},
+            {region: 'منطقة عسير', name: 'تثليث'},
             {region: 'منطقة تبوك', name: 'تبوك'},
-            {region: 'منطقة حائل', name: 'حائل'}
+            {region: 'منطقة تبوك', name: 'الوجه'},
+            {region: 'منطقة تبوك', name: 'ضباء'},
+            {region: 'منطقة تبوك', name: 'تيماء'},
+            {region: 'منطقة تبوك', name: 'أملج'},
+            {region: 'منطقة تبوك', name: 'حقل'},
+            {region: 'منطقة حائل', name: 'حائل'},
+            {region: 'منطقة حائل', name: 'بقعاء'},
+            {region: 'منطقة حائل', name: 'الغزالة'},
+            {region: 'منطقة حائل', name: 'الشملي'},
+            {region: 'منطقة الحدود الشمالية', name: 'عرعر'},
+            {region: 'منطقة الحدود الشمالية', name: 'طريف'},
+            {region: 'منطقة الحدود الشمالية', name: 'رفحاء'},
+            {region: 'منطقة الجوف', name: 'سكاكا'},
+            {region: 'منطقة الجوف', name: 'القريات'},
+            {region: 'منطقة الجوف', name: 'دومة الجندل'},
+            {region: 'منطقة الباحة', name: 'الباحة'},
+            {region: 'منطقة الباحة', name: 'بلجرشي'},
+            {region: 'منطقة الباحة', name: 'المندق'},
+            {region: 'منطقة الباحة', name: 'المخواة'},
+            {region: 'منطقة جازان', name: 'جازان'},
+            {region: 'منطقة جازان', name: 'صبيا'},
+            {region: 'منطقة جازان', name: 'أبو عريش'},
+            {region: 'منطقة جازان', name: 'صامطة'},
+            {region: 'منطقة جازان', name: 'بيش'},
+            {region: 'منطقة نجران', name: 'نجران'},
+            {region: 'منطقة نجران', name: 'شرورة'},
+            {region: 'منطقة نجران', name: 'حبونا'},
         ];
         
-        populateLocationSelect(select, defaultLocations);
+        populateLocationSelect($select, defaultLocations);
+        
+        // Rebuild custom select after locations are loaded
+        if (typeof initCustomSelect === 'function') {
+            setTimeout(initCustomSelect, 50);
+        }
         
         // Load saved location
         const savedLocation = localStorage.getItem('csc_selected_location');
         if (savedLocation) {
-            select.value = savedLocation;
+            $select.val(savedLocation);
             selectedLocation = savedLocation;
+            
+            // Update custom select display
+            const $selectedTextSpan = $('#locationCustomSelect .csc-custom-select-button .selected-text');
+            if ($selectedTextSpan.length) {
+                const $selectedOption = $select.find('option:selected');
+                $selectedTextSpan.text($selectedOption.length ? $selectedOption.text() : savedLocation);
+            }
         }
     }
     
+    // Initialize Custom Select Component
+    function initCustomSelect() {
+        const $locationSelect = $('#locationSelect');
+        const $customSelectContainer = $('#locationCustomSelect');
+        const $customSelectButton = $customSelectContainer.find('.csc-custom-select-button');
+        const $customSelectDropdown = $('#locationSelectDropdown');
+        const $selectedTextSpan = $customSelectButton.find('.selected-text');
+
+        if (!$locationSelect.length || !$customSelectContainer.length || !$customSelectButton.length || !$customSelectDropdown.length || !$selectedTextSpan.length) {
+            console.warn('Custom select elements not found');
+            return;
+        }
+
+        // Update selected text display
+        function updateSelectedText() {
+            const $selectedOption = $locationSelect.find('option:selected');
+            if ($selectedOption.length && $selectedOption.val()) {
+                $selectedTextSpan.text($selectedOption.text());
+            } else {
+                $selectedTextSpan.text('-- اختر الموقع --');
+            }
+        }
+
+        // Build custom select dropdown from native select
+        function buildCustomSelect() {
+            $customSelectDropdown.empty();
+            
+            const $optgroups = $locationSelect.find('optgroup');
+            const $standaloneOptions = $locationSelect.find('> option').filter(function() {
+                return !$(this).closest('optgroup').length;
+            });
+
+            // Add standalone options first
+            $standaloneOptions.each(function() {
+                const $option = $(this);
+                if (!$option.val() || $option.val() === '-- اختر الموقع --') return;
+                
+                const $optionEl = $('<div>')
+                    .addClass('csc-select-option')
+                    .attr('role', 'option')
+                    .attr('tabindex', '0')
+                    .attr('data-value', $option.val())
+                    .text($option.text());
+                
+                if ($locationSelect.val() === $option.val()) {
+                    $optionEl.addClass('selected');
+                }
+                
+                $optionEl.on('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    selectOption($option.val(), $option.text());
+                });
+                
+                $customSelectDropdown.append($optionEl);
+            });
+
+            // Add optgroups with titles
+            $optgroups.each(function() {
+                const $optgroup = $(this);
+                
+                // Add group title
+                const $groupTitle = $('<div>')
+                    .addClass('csc-select-group')
+                    .text($optgroup.attr('label'));
+                $customSelectDropdown.append($groupTitle);
+
+                // Add options in this group
+                $optgroup.find('option').each(function() {
+                    const $option = $(this);
+                    const $optionEl = $('<div>')
+                        .addClass('csc-select-option')
+                        .attr('role', 'option')
+                        .attr('tabindex', '0')
+                        .attr('data-value', $option.val())
+                        .text($option.text());
+                    
+                    if ($locationSelect.val() === $option.val()) {
+                        $optionEl.addClass('selected');
+                    }
+                    
+                    $optionEl.on('click', function(e) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        selectOption($option.val(), $option.text());
+                    });
+                    
+                    $customSelectDropdown.append($optionEl);
+                });
+            });
+        }
+
+        // Select an option
+        function selectOption(value, text) {
+            // Close dropdown first
+            closeDropdown();
+            
+            // Update native select
+            $locationSelect.val(value);
+            
+            // Update custom select button text
+            $selectedTextSpan.text(text || '-- اختر الموقع --');
+            
+            // Update selected location
+            selectedLocation = value;
+            localStorage.setItem('csc_selected_location', selectedLocation);
+            
+            // Trigger change event on native select
+            $locationSelect.trigger('change');
+            
+            // Rebuild dropdown after a delay to ensure dropdown is fully closed
+            setTimeout(function() {
+                buildCustomSelect();
+                // Update selected state after rebuild
+                $customSelectDropdown.find('.csc-select-option').each(function() {
+                    const $opt = $(this);
+                    $opt.removeClass('selected');
+                    if ($opt.attr('data-value') === value) {
+                        $opt.addClass('selected');
+                    }
+                });
+            }, 150);
+        }
+
+        // Open dropdown
+        function openDropdown() {
+            $customSelectButton.addClass('active').attr('aria-expanded', 'true');
+            $customSelectDropdown.addClass('show');
+        }
+
+        // Close dropdown
+        function closeDropdown() {
+            $customSelectButton.removeClass('active').attr('aria-expanded', 'false');
+            $customSelectDropdown.removeClass('show');
+        }
+
+        // Flag to track if dropdown is being toggled
+        let isToggling = false;
+
+        // Toggle dropdown
+        $customSelectButton.on('click.customSelect', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            e.stopImmediatePropagation();
+            
+            isToggling = true;
+            
+            // Toggle: close if open, open if closed
+            if ($customSelectButton.hasClass('active')) {
+                closeDropdown();
+            } else {
+                openDropdown();
+            }
+            
+            // Reset flag after a short delay
+            setTimeout(function() {
+                isToggling = false;
+            }, 200);
+            
+            return false;
+        });
+
+        // Close dropdown when clicking outside
+        $(document).on('click.customSelectClose', function(e) {
+            const $target = $(e.target);
+            
+            // Don't close if we're toggling
+            if (isToggling) {
+                return;
+            }
+            
+            // Don't close if click is on the button or inside the container
+            if ($target.closest($customSelectButton).length || 
+                $target.closest($customSelectContainer).length) {
+                return;
+            }
+            
+            // Close if click is outside
+            closeDropdown();
+        });
+
+        // Close dropdown on Escape key
+        $(document).on('keydown', function(e) {
+            if (e.key === 'Escape' && $customSelectButton.hasClass('active')) {
+                closeDropdown();
+            }
+        });
+
+        // Keyboard navigation - use event delegation
+        $(document).on('keydown', '#locationSelectDropdown .csc-select-option', function(e) {
+            const $options = $customSelectDropdown.find('.csc-select-option');
+            const currentIndex = $options.index(this);
+            
+            switch(e.key) {
+                case 'ArrowDown':
+                    e.preventDefault();
+                    e.stopPropagation();
+                    const nextIndex = currentIndex < $options.length - 1 ? currentIndex + 1 : 0;
+                    $options.eq(nextIndex).focus();
+                    break;
+                case 'ArrowUp':
+                    e.preventDefault();
+                    e.stopPropagation();
+                    const prevIndex = currentIndex > 0 ? currentIndex - 1 : $options.length - 1;
+                    $options.eq(prevIndex).focus();
+                    break;
+                case 'Enter':
+                    e.preventDefault();
+                    e.stopPropagation();
+                    $(this).trigger('click');
+                    break;
+            }
+        });
+
+        // Initialize dropdown content
+        buildCustomSelect();
+        updateSelectedText();
+
+        // Watch for changes in native select
+        $locationSelect.on('change.customSelect', function() {
+            updateSelectedText();
+        });
+
+        // Watch for DOM changes (when options are added/removed)
+        let isRebuilding = false;
+        const observer = new MutationObserver(function() {
+            // Prevent multiple simultaneous rebuilds
+            if (!isRebuilding && !$customSelectButton.hasClass('active')) {
+                isRebuilding = true;
+                buildCustomSelect();
+                updateSelectedText();
+                setTimeout(function() {
+                    isRebuilding = false;
+                }, 100);
+            }
+        });
+
+        if ($locationSelect[0]) {
+            observer.observe($locationSelect[0], {
+                childList: true,
+                subtree: true
+            });
+        }
+    }
+
     // Initialize location selector
     function initLocationSelector() {
-        const locationSelect = document.getElementById('locationSelect');
-        if (locationSelect) {
+        const $locationSelect = $('#locationSelect');
+        if ($locationSelect.length) {
             // Try to load via AJAX first (for WordPress)
             if (typeof cscAjax !== 'undefined' && cscAjax.ajaxurl) {
                 loadLocationsAjax();
             } else {
                 // Fallback to default locations (for local testing)
-                loadDefaultLocations(locationSelect);
+                loadDefaultLocations($locationSelect);
             }
             
+            // Initialize custom select after a short delay to ensure DOM is ready
+            setTimeout(function() {
+                initCustomSelect();
+            }, 100);
+            
             // Handle location change
-            locationSelect.addEventListener('change', function(e) {
-                selectedLocation = e.target.value;
+            $locationSelect.on('change', function(e) {
+                selectedLocation = $(this).val();
                 localStorage.setItem('csc_selected_location', selectedLocation);
-                
-                // Update URL when location changes
-                if (selectedLocation) {
-                    console.log('Location selected:', selectedLocation);
-                }
             });
         }
     }
     
-    // Wait for DOM to be fully ready
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', function() {
-            initLocationSelector();
-            initServices();
-        });
-    } else {
-        // DOM is already ready, but wait a bit for shortcode content
+    // Initialize on document ready
+    $(document).ready(function() {
         initLocationSelector();
-        setTimeout(initServices, 100);
-    }
+        initServices();
+    });
     
     function initServices() {
         // Check if service container exists on the page
-        const carousel = document.querySelector('.csc-service-carousel');
-        if (!carousel) {
-            console.log('Service container not found on page');
+        const $carousel = $('.csc-service-carousel');
+        if (!$carousel.length) {
             return;
         }
         
         // Get elements
-        const secondaryServicesContainer = document.getElementById("secondaryServices");
-        const goButton = document.getElementById("goButton");
+        const $secondaryServicesContainer = $('#secondaryServices');
+        const $tertiaryServicesContainer = $('#tertiaryServices');
+        const $goButton = $('#goButton');
 
         // Check if required elements exist
-        if (!secondaryServicesContainer) {
-            console.error("Secondary services container not found");
+        if (!$secondaryServicesContainer.length) {
             return;
         }
         
-        if (!goButton) {
-            console.error("Go button not found");
+        if (!$goButton.length) {
             return;
         }
         
+        if (!$tertiaryServicesContainer.length) {
+            return;
+        }
         // Check if cscData is available
         if (typeof cscData === 'undefined' || !cscData || !cscData.secondaryServices) {
             console.error("cscData is not defined. Make sure the plugin is properly configured.");
             return;
         }
 
-        // Track selected secondary services (use Set for uniqueness)
-        let selectedSecondaryServices = new Set();
+        // Track selected secondary service (single selection only)
+        let selectedSecondaryService = null;
+        let selectedSecondaryServiceId = null;
+        // Track selected tertiary services (multiselect)
+        let selectedTertiaryServices = new Set();
 
         // Handle Go button clicks
-        goButton.addEventListener('click', onGoButtonClick);
-
-        function onGoButtonClick(e) {
+        $goButton.on('click', function(e) {
             e.preventDefault();
             e.stopPropagation();
 
-            if (selectedSecondaryServices.size === 0) {
+            if (!selectedSecondaryService && selectedTertiaryServices.size === 0) {
                 alert("يرجى اختيار خدمة فرعية أولاً");
                 return;
             }
 
-            const selectedMainService = carousel.querySelector(".csc-service-box.marked");
-            if (!selectedMainService) {
+            const $selectedMainService = $carousel.find(".csc-service-box.marked");
+            if (!$selectedMainService.length) {
                 alert("يرجى اختيار خدمة رئيسية أولاً");
                 return;
             }
 
-            const selectedCategory = selectedMainService.getAttribute("data-category");
-            const baseUrl = selectedMainService.getAttribute("data-url");
+            const selectedCategory = $selectedMainService.attr("data-category");
+            const baseUrl = $selectedMainService.attr("data-url");
 
             if (!selectedCategory || !baseUrl) {
                 alert("تعذر تحديد الخدمة. حاول مرة أخرى.");
@@ -214,7 +540,7 @@
             }
 
             updateURL(baseUrl, selectedCategory);
-        }
+        });
 
         // Function to update URL
         function updateURL(baseUrl, category) {
@@ -223,71 +549,46 @@
                 console.error("Missing baseUrl or category");
                 return;
             }
-            
+
             // Create a properly formatted URL
             try {
-                const origin = window.location.origin || (window.location.protocol + '//' + window.location.host);
                 const safeBase = String(baseUrl).replace(/^\/+|\/+$/g, '');
-                const url = new URL(`${origin}/directory-category/${safeBase}/`);
+                const origin = window.location.origin || (window.location.protocol + '//' + window.location.host);
+                const url = new URL(origin + '/directory-listing/' + safeBase + '/');
 
-                // Add selected secondary services as query parameters based on category
-                if (category === "البناء الذاتي والتشطيب") {
-                    selectedSecondaryServices.forEach(service => {
-                        url.searchParams.append("filter_field_constarcion[]", service);
-                    });
-                    url.searchParams.append("drts-search", "1");
-                    url.searchParams.append("search_keyword[text]", "البناء الذاتي والتشطيب");
-                    url.searchParams.append("search_keyword[id]", "83");
-                    url.searchParams.append("search_keyword[taxonomy]", "directory_category");
-                    url.searchParams.append("filter_location_address[radius]", "84");
-                } else if (category === "صيانة المنازل الدورية") {
-                    selectedSecondaryServices.forEach(service => {
-                        url.searchParams.append("filter_field_maintenance[]", service);
-                    });
-                    url.searchParams.append("drts-search", "1");
-                    url.searchParams.append("search_keyword[text]", "صيانة المنازل الدورية");
-                    url.searchParams.append("search_keyword[id]", "85");
-                    url.searchParams.append("search_keyword[taxonomy]", "directory_category");
-                    url.searchParams.append("filter_location_address[radius]", "84");
-                } else if (category === "الموردين والمواد") {
-                    selectedSecondaryServices.forEach(service => {
-                        url.searchParams.append("filter_field_sourcing[]", service);
-                    });
-                    url.searchParams.append("drts-search", "1");
-                    url.searchParams.append("search_keyword[text]", "الموردين والمواد");
-                    url.searchParams.append("search_keyword[id]", "37");
-                    url.searchParams.append("search_keyword[taxonomy]", "directory_category");
-                    url.searchParams.append("filter_location_address[radius]", "84");
-                } else if (category === "المعدات والخدمات المساندة") {
-                    selectedSecondaryServices.forEach(service => {
-                        url.searchParams.append("filter_field_hiring[]", service);
-                    });
-                    url.searchParams.append("drts-search", "1");
-                    url.searchParams.append("search_keyword[text]", "المعدات والخدمات المساندة");
-                    url.searchParams.append("search_keyword[id]", "87");
-                    url.searchParams.append("search_keyword[taxonomy]", "directory_category");
-                    url.searchParams.append("filter_location_address[radius]", "84");
-                } else {
-                    // Default case for categories without defined subcategories
-                    url.searchParams.append("drts-search", "1");
-                    url.searchParams.append("search_keyword[text]", category);
-                    url.searchParams.append("search_keyword[taxonomy]", "directory_category");
-                    url.searchParams.append("filter_location_address[radius]", "84");
+                if (selectedLocation.length) {
+                    url.searchParams.append("filter_location_address[text]", selectedLocation);
                 }
+
+                // Extract numeric ID from secondary service ID if available
+                let categoryId = category;
+                if (selectedSecondaryServiceId) {
+                    // Extract numeric part from ID like 'secondary-service-83' -> '83'
+                    const idMatch = selectedSecondaryServiceId.match(/\d+$/);
+                    if (idMatch) {
+                        categoryId = idMatch[0];
+                    }
+                }
+
+                url.searchParams.append("filter_directory_category", categoryId);
+
+                // Add selected tertiary services to filter_field_services
+                if (selectedTertiaryServices.size > 0) {
+                    selectedTertiaryServices.forEach(function(tertiaryService) {
+                        url.searchParams.append("filter_field_constarcion[]", tertiaryService);
+                    });
+                } 
 
                 // Add additional fixed query parameters
                 url.searchParams.append("filter", "1");
                 url.searchParams.append("sort", "post_published");
 
-                // Add location to URL if selected
-                if (selectedLocation) {
-                    url.searchParams.append("location", selectedLocation);
-                }
 
                 // Redirect to the final URL
-                console.log("Redirecting to:", url.toString());
-                console.log("Selected Location:", selectedLocation || 'None');
-                window.location.href = url.toString();
+                let finalUrl = url.toString();
+                finalUrl = finalUrl.replace(/\+/g, '%20');
+                
+                window.location.href = finalUrl;
             } catch (error) {
                 console.error("Error building URL:", error);
                 alert("حدث خطأ في بناء الرابط. يرجى المحاولة مرة أخرى.");
@@ -295,78 +596,143 @@
         }
         
         // Use event delegation for main service boxes
-        carousel.addEventListener("click", function(e) {
-            // Check if click is on a main service box
-            const serviceBox = e.target.closest('.csc-main-categories .csc-service-box');
-            if (serviceBox) {
-                e.preventDefault();
-                const category = serviceBox.getAttribute("data-category");
-                const url = serviceBox.getAttribute("data-url");
+        $carousel.on("click", ".csc-main-categories .csc-service-box", function(e) {
+            e.preventDefault();
+            const $serviceBox = $(this);
+            const category = $serviceBox.attr("data-category");
+            const url = $serviceBox.attr("data-url");
 
-                // Deselect all main categories
-                carousel.querySelectorAll(".csc-main-categories .csc-service-box").forEach(b => b.classList.remove("marked"));
+            // Deselect all main categories
+            $carousel.find(".csc-main-categories .csc-service-box").removeClass("marked");
 
-                // Select the clicked main category
-                if (category) {
-                    serviceBox.classList.add("marked");
-                    
-                    // Check if this category has secondary services
-                    if (cscData.secondaryServices[category]) {
-                        // Display secondary services container
-                        secondaryServicesContainer.style.display = "flex";
-                        // Reset selected secondary services for the new category
-                        selectedSecondaryServices = new Set();
-                        goButton.style.display = "none";
-                        secondaryServicesContainer.innerHTML = "";
+            // Select the clicked main category
+            if (category) {
+                $serviceBox.addClass("marked");
+                
+                // Check if this category has secondary services
+                if (cscData.secondaryServices[category]) {
+                    // Display secondary services container
+                    $secondaryServicesContainer.css("display", "flex");
+                    // Reset selected secondary service for the new category
+                    selectedSecondaryService = null;
+                    selectedSecondaryServiceId = null;
+                    selectedTertiaryServices = new Set();
+                    $tertiaryServicesContainer.hide();
+                    $goButton.hide();
+                    $secondaryServicesContainer.empty();
+                    $tertiaryServicesContainer.empty();
 
-                        // Display secondary services
-                        cscData.secondaryServices[category].forEach(service => {
-                            const serviceBoxEl = document.createElement("a");
-                            serviceBoxEl.className = "csc-service-box";
-                            serviceBoxEl.href = "#";
-                            serviceBoxEl.innerHTML = `
-                                <i class="${service.icon}"></i>
-                                <h4>${service.title}</h4>
-                            `;
+                    // Display secondary services
+                    $.each(cscData.secondaryServices[category], function(index, service) {
+                        const $serviceBoxEl = $('<a>')
+                            .addClass('csc-service-box')
+                            .attr('href', '#')
+                            .attr('id', service.id || '')
+                            .html('<i class="' + service.icon + '"></i><h4>' + service.title + '</h4>');
 
-                            // Add click event to mark/unmark the service
-                            serviceBoxEl.addEventListener("click", (e) => {
-                                e.preventDefault();
-                                e.stopPropagation();
-                                serviceBoxEl.classList.toggle("marked");
+                        // Check if this secondary service has tertiary services
+                        const hasTertiaryServices = cscData.tertiaryServices && 
+                                                    cscData.tertiaryServices[category] && 
+                                                    cscData.tertiaryServices[category][service.title];
 
-                                // Update selected secondary services
-                                if (serviceBoxEl.classList.contains("marked")) {
-                                    selectedSecondaryServices.add(service.title);
+                        // Add click event to select the service (single selection)
+                        $serviceBoxEl.on("click", function(e) {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            
+                            // If clicking the same service, deselect it
+                            if ($(this).hasClass("marked")) {
+                                $(this).removeClass("marked");
+                                selectedSecondaryService = null;
+                                selectedSecondaryServiceId = null;
+                                selectedTertiaryServices = new Set();
+                                $tertiaryServicesContainer.hide().empty();
+                                $goButton.hide();
+                            } else {
+                                // Deselect all other services
+                                $secondaryServicesContainer.find('.csc-service-box').removeClass("marked");
+                                // Select this service
+                                $(this).addClass("marked");
+                                selectedSecondaryService = service.title;
+                                    selectedSecondaryServiceId = service.id || null;
+                                
+                                // Check if this service has tertiary services
+                                if (hasTertiaryServices) {
+                                    // Show tertiary services (multiselect)
+                                    selectedTertiaryServices = new Set();
+                                    $tertiaryServicesContainer.css("display", "flex").empty();
+                                    
+                                    const tertiaryServices = cscData.tertiaryServices[category][service.title];
+                                    $.each(tertiaryServices, function(idx, tertiaryService) {
+                                        const $tertiaryBoxEl = $('<a>')
+                                            .addClass('csc-service-box')
+                                            .attr('href', '#')
+                                            .html('<i class="' + tertiaryService.icon + '"></i><h4>' + tertiaryService.title + '</h4>');
+                                        
+                                        // Add click event for multiselect
+                                        $tertiaryBoxEl.on("click", function(e) {
+                                            e.preventDefault();
+                                            e.stopPropagation();
+                                            
+                                            // Toggle selection
+                                            $(this).toggleClass("marked");
+                                            
+                                            if ($(this).hasClass("marked")) {
+                                                selectedTertiaryServices.add(tertiaryService.title);
+                                            } else {
+                                                selectedTertiaryServices.delete(tertiaryService.title);
+                                            }
+                                            
+                                            // Show/hide Go button based on selections
+                                            if (selectedTertiaryServices.size > 0 || selectedSecondaryService) {
+                                                $goButton.show();
+                                            } else {
+                                                $goButton.hide();
+                                            }
+                                        });
+                                        
+                                        $tertiaryServicesContainer.append($tertiaryBoxEl);
+                                    });
                                 } else {
-                                    selectedSecondaryServices.delete(service.title);
+                                    // No tertiary services - just select the secondary service
+                                    $tertiaryServicesContainer.hide().empty();
+                                    selectedTertiaryServices = new Set();
+                                    $goButton.show();
                                 }
-
-                                // Show/hide the Go button
-                                if (selectedSecondaryServices.size > 0) {
-                                    goButton.style.display = "block";
-                                } else {
-                                    goButton.style.display = "none";
-                                }
-                            });
-
-                            secondaryServicesContainer.appendChild(serviceBoxEl);
+                            }
                         });
-                    } else {
-                        // For categories without secondary services, navigate directly
-                        selectedSecondaryServices = new Set();
-                        secondaryServicesContainer.style.display = "none";
-                        goButton.style.display = "none";
-                        updateURL(url, category);
-                    }
+
+                        $secondaryServicesContainer.append($serviceBoxEl);
+                    });
+                } else {
+                    // For categories without secondary services, navigate directly
+                    selectedSecondaryService = null;
+                    selectedSecondaryServiceId = null;
+                    selectedTertiaryServices = new Set();
+                    $secondaryServicesContainer.hide();
+                    $tertiaryServicesContainer.hide();
+                    $goButton.hide();
+                    updateURL(url, category);
                 }
-            } else if (e.target.closest('#goButton') == null) {
-                // Clicked outside of service boxes (e.g., deselect area)
-                selectedSecondaryServices = new Set();
-                secondaryServicesContainer.style.display = "none";
-                goButton.style.display = "none";
-                carousel.querySelectorAll(".csc-main-categories .csc-service-box").forEach(b => b.classList.remove("marked"));
+            }
+        });
+
+        // Click outside handler
+        $(document).on('click', function(e) {
+            const $target = $(e.target);
+            if (!$target.closest('.csc-main-categories .csc-service-box').length && 
+                !$target.closest('#goButton').length &&
+                !$target.closest('#secondaryServices').length &&
+                !$target.closest('#tertiaryServices').length) {
+                // Clicked outside of service boxes
+                selectedSecondaryService = null;
+                selectedSecondaryServiceId = null;
+                selectedTertiaryServices = new Set();
+                $secondaryServicesContainer.hide();
+                $tertiaryServicesContainer.hide();
+                $goButton.hide();
+                $carousel.find(".csc-main-categories .csc-service-box").removeClass("marked");
             }
         });
     }
-})();
+})(jQuery);

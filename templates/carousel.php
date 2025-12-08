@@ -21,118 +21,21 @@ if (empty($main_services)) {
             <i class="fas fa-map-marker-alt"></i>
             اختر الموقع
         </label>
-        <select id="locationSelect" class="csc-location-select">
-            <option value="">-- اختر الموقع --</option>
-            <optgroup label="المنطقة الشرقية">
-                <option value="الدمام">الدمام</option>
-                <option value="الخبر">الخبر</option>
-                <option value="الظهران">الظهران</option>
-                <option value="القطيف">القطيف</option>
-                <option value="الأحساء">الأحساء</option>
-                <option value="حفر الباطن">حفر الباطن</option>
-                <option value="الجبيل">الجبيل</option>
-                <option value="رأس تنورة">رأس تنورة</option>
-                <option value="بقيق">بقيق</option>
-                <option value="النعيرية">النعيرية</option>
-            </optgroup>
-            <optgroup label="منطقة الرياض">
-                <option value="الرياض">الرياض</option>
-                <option value="الخرج">الخرج</option>
-                <option value="الدوادمي">الدوادمي</option>
-                <option value="المجمعة">المجمعة</option>
-                <option value="القويعية">القويعية</option>
-                <option value="الأفلاج">الأفلاج</option>
-                <option value="وادي الدواسر">وادي الدواسر</option>
-                <option value="الزلفي">الزلفي</option>
-                <option value="شقراء">شقراء</option>
-                <option value="حوطة بني تميم">حوطة بني تميم</option>
-            </optgroup>
-            <optgroup label="منطقة مكة المكرمة">
-                <option value="مكة المكرمة">مكة المكرمة</option>
-                <option value="جدة">جدة</option>
-                <option value="الطائف">الطائف</option>
-                <option value="رابغ">رابغ</option>
-                <option value="خليص">خليص</option>
-                <option value="القنفذة">القنفذة</option>
-                <option value="الليث">الليث</option>
-                <option value="أضم">أضم</option>
-                <option value="تربة">تربة</option>
-                <option value="رنية">رنية</option>
-            </optgroup>
-            <optgroup label="منطقة المدينة المنورة">
-                <option value="المدينة المنورة">المدينة المنورة</option>
-                <option value="ينبع">ينبع</option>
-                <option value="العلا">العلا</option>
-                <option value="المدينة">المدينة</option>
-                <option value="بدر">بدر</option>
-                <option value="خيبر">خيبر</option>
-                <option value="العيص">العيص</option>
-                <option value="الحناكية">الحناكية</option>
-            </optgroup>
-            <optgroup label="منطقة القصيم">
-                <option value="بريدة">بريدة</option>
-                <option value="عنيزة">عنيزة</option>
-                <option value="الرس">الرس</option>
-                <option value="المذنب">المذنب</option>
-                <option value="البكيرية">البكيرية</option>
-                <option value="البدائع">البدائع</option>
-                <option value="الأسياح">الأسياح</option>
-                <option value="النبهانية">النبهانية</option>
-            </optgroup>
-            <optgroup label="منطقة عسير">
-                <option value="أبها">أبها</option>
-                <option value="خميس مشيط">خميس مشيط</option>
-                <option value="نجران">نجران</option>
-                <option value="جازان">جازان</option>
-                <option value="صبيا">صبيا</option>
-                <option value="أحد رفيدة">أحد رفيدة</option>
-                <option value="محايل عسير">محايل عسير</option>
-                <option value="النماص">النماص</option>
-                <option value="بلقرن">بلقرن</option>
-                <option value="تثليث">تثليث</option>
-            </optgroup>
-            <optgroup label="منطقة تبوك">
-                <option value="تبوك">تبوك</option>
-                <option value="الوجه">الوجه</option>
-                <option value="ضباء">ضباء</option>
-                <option value="تيماء">تيماء</option>
-                <option value="أملج">أملج</option>
-                <option value="حقل">حقل</option>
-            </optgroup>
-            <optgroup label="منطقة حائل">
-                <option value="حائل">حائل</option>
-                <option value="بقعاء">بقعاء</option>
-                <option value="الغزالة">الغزالة</option>
-                <option value="الشملي">الشملي</option>
-            </optgroup>
-            <optgroup label="منطقة الحدود الشمالية">
-                <option value="عرعر">عرعر</option>
-                <option value="طريف">طريف</option>
-                <option value="رفحاء">رفحاء</option>
-            </optgroup>
-            <optgroup label="منطقة الجوف">
-                <option value="سكاكا">سكاكا</option>
-                <option value="القريات">القريات</option>
-                <option value="دومة الجندل">دومة الجندل</option>
-            </optgroup>
-            <optgroup label="منطقة الباحة">
-                <option value="الباحة">الباحة</option>
-                <option value="بلجرشي">بلجرشي</option>
-                <option value="المندق">المندق</option>
-                <option value="المخواة">المخواة</option>
-            </optgroup>
-            <optgroup label="منطقة جازان">
-                <option value="جازان">جازان</option>
-                <option value="صبيا">صبيا</option>
-                <option value="أبو عريش">أبو عريش</option>
-                <option value="صامطة">صامطة</option>
-                <option value="بيش">بيش</option>
-            </optgroup>
-            <optgroup label="منطقة نجران">
-                <option value="نجران">نجران</option>
-                <option value="شرورة">شرورة</option>
-                <option value="حبونا">حبونا</option>
-            </optgroup>
+        <div class="csc-custom-select" id="locationCustomSelect">
+            <button type="button" class="csc-custom-select-button" aria-expanded="false" aria-haspopup="listbox">
+                <span class="selected-text">-- اختر الموقع --</span>
+                <span class="select-arrow">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 12 12">
+                        <path fill="currentColor" d="M6 9L1 4h10z"/>
+                    </svg>
+                </span>
+            </button>
+            <div class="csc-custom-select-dropdown" role="listbox" id="locationSelectDropdown">
+                <!-- Options will be dynamically inserted here by JavaScript -->
+            </div>
+        </div>
+        <!-- Hidden native select for form submission and fallback -->
+        <select id="locationSelect" class="csc-location-select" style="display: none;" aria-hidden="true">
         </select>
     </div>
     
@@ -150,13 +53,13 @@ if (empty($main_services)) {
                     case 'البناء الذاتي والتشطيب':
                         $icon_file = CSC_PLUGIN_DIR . 'assets/icons/home-user.svg';
                         break;
-                    case 'صيانة المنازل الدورية':
+                    case 'الصيانة والتنظيف':
                         $icon_file = CSC_PLUGIN_DIR . 'assets/icons/tools-reparation.svg';
                         break;
                     case 'الموردين والمواد':
                         $icon_file = CSC_PLUGIN_DIR . 'assets/icons/supply-chain.svg';
                         break;
-                    case 'المعدات والخدمات المساندة':
+                    case 'التأجير والخدمات المساندة':
                         $icon_file = CSC_PLUGIN_DIR . 'assets/icons/excavator.svg';
                         break;
                     default:
@@ -190,6 +93,11 @@ if (empty($main_services)) {
     <!-- Secondary Services Container (hidden by default) -->
     <div id="secondaryServices" class="csc-secondary-services" style="display: none;">
         <!-- Secondary services will be dynamically inserted here by JavaScript -->
+    </div>
+    
+    <!-- Third-level Services Container (hidden by default) -->
+    <div id="tertiaryServices" class="csc-tertiary-services" style="display: none;">
+        <!-- Third-level services will be dynamically inserted here by JavaScript -->
     </div>
     
     <!-- Go Button (hidden by default, shown when services are selected) -->

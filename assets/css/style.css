@@ -10,15 +10,6 @@
 }
 
 body {
-    /* margin: 0; */
-    /* padding: 0; */
-    /* background: #f5f5f5; */
-    /* min-height: 100vh; */
-    /* font-family: "Cairo", sans-serif; */
-    /* text-align: right; */
-    /* padding: 40px 20px; */
-    /* overflow-x: hidden; */
-    /* -webkit-font-smoothing: antialiased; */
     -moz-osx-font-smoothing: grayscale;
 }
 
@@ -27,14 +18,253 @@ body {
     width: 100%;
     max-width: 1400px;
     margin: 0 auto;
-    /* padding: 30px; */
     position: relative;
     direction: rtl;
-    /* background: #ffffff; */
-    /* border-radius: 8px; */
-    /* box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); */
-    /* font-family: "Cairo", sans-serif; */
-    /* box-sizing: border-box; */
+}
+
+/* Location Selector */
+.csc-location-selector {
+    margin-bottom: 24px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.elementor-kit-17 label.csc-location-label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 16px;
+    font-weight: 500;
+    color: #2D3748;
+    font-family: "Cairo", sans-serif;
+    white-space: nowrap;
+}
+
+.csc-location-label i {
+    color: #2196F3;
+    font-size: 18px;
+}
+
+/* Custom Select Container */
+.csc-custom-select {
+    position: relative;
+    flex: 1;
+    min-width: 200px;
+    max-width: 400px;
+    font-family: "Cairo", sans-serif;
+}
+
+/* Custom Select Button (the visible select trigger) */
+.csc-custom-select-button {
+    width: 100%;
+    padding: 12px 40px 12px 16px;
+    border: 1px solid #E2E8F0;
+    border-radius: 8px;
+    background: #ffffff;
+    color: #2D3748;
+    font-size: 15px;
+    font-family: "Cairo", sans-serif;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-align: right;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    box-sizing: border-box;
+    position: relative;
+}
+
+.csc-custom-select-button:hover {
+    border-color: #2196F3;
+    box-shadow: 0 2px 8px rgba(33, 150, 243, 0.15);
+}
+
+.csc-custom-select-button.active {
+    border-color: #2196F3;
+    box-shadow: 0 0 0 3px rgba(33, 150, 243, 0.1);
+}
+
+.csc-custom-select-button .selected-text {
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.csc-custom-select-button .select-arrow {
+    position: absolute;
+    left: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 12px;
+    height: 12px;
+    transition: transform 0.3s ease;
+    pointer-events: none;
+}
+
+.csc-custom-select-button.active .select-arrow {
+    transform: translateY(-50%) rotate(180deg);
+}
+
+.csc-custom-select-button .select-arrow svg {
+    width: 100%;
+    height: 100%;
+    fill: #2D3748;
+}
+
+/* Custom Select Dropdown */
+.csc-custom-select-dropdown {
+    position: absolute;
+    top: calc(100% + 4px);
+    right: 0;
+    left: 0;
+    background: #ffffff;
+    border: 1px solid #E2E8F0;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    z-index: 1000;
+    max-height: 400px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    display: none;
+    animation: slideDownFade 0.3s ease-out;
+    direction: rtl;
+}
+
+.csc-custom-select-dropdown.show {
+    display: block;
+}
+
+/* Scrollbar styling for dropdown */
+.csc-custom-select-dropdown::-webkit-scrollbar {
+    width: 8px;
+}
+
+.csc-custom-select-dropdown::-webkit-scrollbar-track {
+    background: #F7FAFC;
+    border-radius: 10px;
+}
+
+.csc-custom-select-dropdown::-webkit-scrollbar-thumb {
+    background: #CBD5E0;
+    border-radius: 10px;
+}
+
+.csc-custom-select-dropdown::-webkit-scrollbar-thumb:hover {
+    background: #A0AEC0;
+}
+
+/* Select Group (Title/Header) */
+.csc-select-group {
+    padding: 10px 16px 6px 16px;
+    font-size: 13px;
+    font-weight: 600;
+    color: #718096;
+    background: #F7FAFC;
+    border-bottom: 1px solid #E2E8F0;
+    margin: 0;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-family: "Cairo", sans-serif;
+}
+
+.csc-select-group:first-child {
+    border-top-left-radius: 8px;
+    border-top-right-radius: 8px;
+}
+
+/* Select Option */
+.csc-select-option {
+    padding: 12px 16px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    color: #2D3748;
+    font-size: 15px;
+    font-family: "Cairo", sans-serif;
+    border-bottom: 1px solid #F7FAFC;
+    display: block;
+    text-decoration: none;
+}
+
+.csc-select-option:last-child {
+    border-bottom: none;
+}
+
+.csc-select-option:hover {
+    background: #EDF2F7;
+    color: #2196F3;
+}
+
+.csc-select-option.selected {
+    background: #E3F2FD;
+    color: #1976D2;
+    font-weight: 600;
+}
+
+.csc-select-option.selected::after {
+    content: '✓';
+    float: left;
+    color: #1976D2;
+    font-weight: bold;
+    margin-left: 8px;
+}
+
+/* Search Input (Optional) */
+.csc-select-search {
+    padding: 12px 16px;
+    border-bottom: 1px solid #E2E8F0;
+    background: #F7FAFC;
+}
+
+.csc-select-search input {
+    width: 100%;
+    padding: 8px 12px;
+    border: 1px solid #E2E8F0;
+    border-radius: 6px;
+    font-size: 14px;
+    font-family: "Cairo", sans-serif;
+    box-sizing: border-box;
+}
+
+.csc-select-search input:focus {
+    outline: none;
+    border-color: #2196F3;
+    box-shadow: 0 0 0 3px rgba(33, 150, 243, 0.1);
+}
+
+/* Animation */
+@keyframes slideDownFade {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .csc-location-selector {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .csc-location-label {
+        width: 100%;
+    }
+    
+    .csc-custom-select {
+        width: 100%;
+        max-width: 100%;
+    }
+    
+    .csc-custom-select-dropdown {
+        max-height: 300px;
+    }
 }
 
 /* Main Categories - Always in one line */
@@ -45,7 +275,6 @@ body {
     margin-bottom: 32px;
     padding: 0;
     flex-wrap: nowrap;
-    overflow-x: auto;
     -webkit-overflow-scrolling: touch;
     width: 100%;
 }
@@ -152,7 +381,6 @@ body {
     text-decoration: none;
     background: #F7FAFC;
     border: 1px solid #E2E8F0;
-    /* border-radius: 50px; */
     padding: 8px 20px;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
     transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
@@ -607,4 +835,167 @@ body {
 .csc-go-button:active::before {
     width: 300px;
     height: 300px;
+}
+
+/* Third-level services container - Horizontal scrollable */
+.csc-tertiary-services {
+    display: none; /* Hidden by default, shown via JavaScript */
+    margin-top: 24px;
+    padding: 20px 0;
+    background: transparent;
+    animation: slideDown 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    will-change: transform, opacity;
+    overflow-x: auto;
+    overflow-y: hidden;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: thin;
+    scrollbar-color: #CBD5E0 #F7FAFC;
+    flex-direction: row;
+    gap: 10px;
+}
+
+.csc-tertiary-services[style*="display: flex"],
+.csc-tertiary-services[style*="display:flex"] {
+    display: flex !important;
+    flex-direction: row !important;
+    gap: 10px;
+}
+
+/* Service box style - Third-level services (horizontal) */
+.csc-tertiary-services .csc-service-box {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    text-decoration: none;
+    background: #E8F4FD;
+    border: 1px solid #90CAF9;
+    padding: 8px 18px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    color: #1565C0;
+    word-wrap: nowrap;
+    white-space: nowrap;
+    text-align: center;
+    cursor: pointer;
+    position: relative;
+    transform: scale(1);
+    will-change: transform, box-shadow;
+    flex-shrink: 0;
+    min-width: fit-content;
+    max-width: 100%;
+    box-sizing: border-box;
+}
+
+.csc-tertiary-services .csc-service-box:hover {
+    transform: translateY(-2px) scale(1.02);
+    box-shadow: 0 4px 12px rgba(33, 150, 243, 0.2);
+    border-color: #2196F3;
+    background: #BBDEFB;
+}
+
+.csc-tertiary-services .csc-service-box i {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background: #ffffff;
+    color: #2196F3;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    box-shadow: 0 2px 4px rgba(33, 150, 243, 0.2);
+    flex-shrink: 0;
+    transition: all 0.3s ease;
+}
+
+.csc-tertiary-services .csc-service-box:hover i {
+    transform: scale(1.1);
+    background: #ffffff;
+    box-shadow: 0 4px 12px rgba(33, 150, 243, 0.4);
+}
+
+.csc-tertiary-services .csc-service-box h4 {
+    margin: 0;
+    font-size: 12px;
+    font-weight: 500;
+    color: #1565C0;
+    line-height: 1.4;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    transition: all 0.3s ease;
+    font-family: "Cairo", sans-serif;
+    text-align: center;
+}
+
+.csc-tertiary-services .csc-service-box:hover h4 {
+    color: #0D47A1;
+}
+
+.csc-tertiary-services .csc-service-box.marked {
+    box-shadow: 0 4px 12px rgba(49, 130, 206, 0.3);
+    transform: translateY(-2px);
+    background: #2196F3;
+    animation: fadeIn 0.3s ease-out;
+}
+
+.csc-tertiary-services .csc-service-box.marked h4 {
+    color: #ffffff;
+    font-weight: 600;
+}
+
+.csc-tertiary-services .csc-service-box.marked i {
+    background: #ffffff;
+    box-shadow: 0 2px 8px rgba(25, 118, 210, 0.3);
+}
+
+/* Custom scrollbar for third-level services */
+.csc-tertiary-services::-webkit-scrollbar {
+    height: 6px;
+}
+
+.csc-tertiary-services::-webkit-scrollbar-track {
+    background: #F7FAFC;
+    border-radius: 10px;
+}
+
+.csc-tertiary-services::-webkit-scrollbar-thumb {
+    background: #CBD5E0;
+    border-radius: 10px;
+}
+
+.csc-tertiary-services::-webkit-scrollbar-thumb:hover {
+    background: #A0AEC0;
+}
+
+@media (max-width: 768px) {
+    .csc-tertiary-services {
+        padding: 14px 0 !important;
+        gap: 9px;
+    }
+    
+    .csc-tertiary-services .csc-service-box {
+        padding: 7px 16px;
+    }
+    
+    .csc-tertiary-services .csc-service-box h4 {
+        font-size: 11.5px;
+    }
+}
+
+@media (max-width: 576px) {
+    .csc-tertiary-services {
+        padding: 12px 0 !important;
+        gap: 8px;
+    }
+    
+    .csc-tertiary-services .csc-service-box {
+        padding: 6px 14px;
+    }
+    
+    .csc-tertiary-services .csc-service-box h4 {
+        font-size: 11px;
+    }
 } 
