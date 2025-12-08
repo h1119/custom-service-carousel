@@ -315,13 +315,13 @@ body {
 
 @media (max-width: 576px) {
     .csc-main-categories {
-        gap: 10px;
+        gap: 4px;
         margin-bottom: 24px;
     }
     
     .csc-main-categories .csc-service-box {
         flex: 1;
-        min-width: 100px;
+        min-width: 50px;
     }
 }
 
@@ -366,8 +366,8 @@ body {
 
 @media (max-width: 576px) {
     .csc-main-categories .csc-service-box {
-        padding: 20px 16px 18px 16px;
-        min-height: 160px;
+        padding: 20px 1px 18px 1px;
+        min-height: 50px;
     }
 }
 
@@ -618,8 +618,8 @@ body {
     }
     
     .csc-main-categories .csc-service-box h4 {
-        font-size: 14px;
-        margin-top: 70px;
+        font-size: 11px;
+        margin-top: 50px;
     }
     
     /* Icon background removed in responsive */

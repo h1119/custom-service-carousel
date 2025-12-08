@@ -102,7 +102,7 @@ if (empty($main_services)) {
     
     <!-- Go Button (hidden by default, shown when services are selected) -->
     <button id="goButton" class="csc-go-button" style="display: none;">
-        اذهب
+        البحث
     </button>
 </div>
 
