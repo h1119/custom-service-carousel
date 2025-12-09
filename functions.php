@@ -21,8 +21,18 @@ add_filter('template_include', function ($template) {
 // Shortcode to display the carousel
 // This is the main function that displays the carousel on the page
 function csc_service_carousel_shortcode($atts) {
+    // Parse shortcode attributes
+    $atts = shortcode_atts(array(
+        'link' => 'directory-listing' // Default to 'directory-listing' if not provided
+    ), $atts, 'service_carousel');
+    // Pass the link to the template
+    $directory_base_slug = $atts['link'];
+    
     ob_start();
+    // Make the link available to the template
+    $GLOBALS['csc_current_link'] = $directory_base_slug;
     include CSC_PLUGIN_DIR . 'templates/carousel.php';
+    unset($GLOBALS['csc_current_link']);
     return ob_get_clean();
 }
 add_shortcode('service_carousel', 'csc_service_carousel_shortcode');

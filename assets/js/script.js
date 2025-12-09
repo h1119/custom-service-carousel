@@ -554,7 +554,14 @@
             try {
                 const safeBase = String(baseUrl).replace(/^\/+|\/+$/g, '');
                 const origin = window.location.origin || (window.location.protocol + '//' + window.location.host);
-                const url = new URL(origin + '/directory-listing/' + safeBase + '/');
+                // Get baseSlug from carousel data attribute, cscData, or default to 'directory-listing'
+                let baseSlug = 'directory-listing';
+                if ($carousel.length && $carousel.attr('data-directory-base-slug')) {
+                    baseSlug = $carousel.attr('data-directory-base-slug');
+                } else if (typeof cscData !== 'undefined' && cscData.directoryBaseSlug) {
+                    baseSlug = cscData.directoryBaseSlug;
+                }
+                const url = new URL(origin + '/' + baseSlug.replace(/^\/+|\/+$/g, '') + '/');
 
                 if (selectedLocation.length) {
                     url.searchParams.append("filter_location_address[text]", selectedLocation);

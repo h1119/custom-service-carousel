@@ -380,7 +380,7 @@ body {
     gap: 10px;
     text-decoration: none;
     background: #F7FAFC;
-    border: 1px solid #E2E8F0;
+    border: 1px solid #a7abb1;
     padding: 8px 20px;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
     transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
@@ -442,7 +442,7 @@ body {
 .csc-main-categories .csc-service-box:hover {
     transform: translateY(-6px) scale(1.02);
     box-shadow: 0 8px 24px rgba(33, 150, 243, 0.4);
-    background: #c3c3c3;
+    background: #a9937f;
 }
 
 .csc-main-categories .csc-service-box:hover:active {
@@ -790,6 +790,7 @@ body {
 .csc-go-button {
     display: none; /* Hidden by default */
     margin-top: 24px;
+    margin-bottom: 24px;
     padding: 16px 40px;
     background: linear-gradient(135deg, #2196F3 0%, #1976D2 100%);
     color: #fff;

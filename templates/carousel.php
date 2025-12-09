@@ -14,7 +14,11 @@ if (empty($main_services)) {
 }
 ?>
 
-<div class="csc-service-carousel">
+<?php
+// Get the link from shortcode attribute if available
+$directory_base_slug = isset($GLOBALS['csc_current_link']) ? $GLOBALS['csc_current_link'] : 'directory-listing';
+?>
+<div class="csc-service-carousel" data-directory-base-slug="<?php echo esc_attr($directory_base_slug); ?>">
     <!-- Location Selector -->
     <div class="csc-location-selector">
         <label for="locationSelect" class="csc-location-label">
