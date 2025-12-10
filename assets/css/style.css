@@ -599,7 +599,7 @@ body {
     }
     
     .csc-secondary-services {
-        padding: 14px 0 !important;
+        padding: 0 0 14px 0 !important;
         gap: 9px;
     }
     
@@ -632,7 +632,7 @@ body {
     }
     
     .csc-secondary-services {
-        padding: 12px 0 !important;
+        padding: 0 0 12px 0 !important;
         gap: 8px;
     }
     
@@ -649,7 +649,7 @@ body {
 .csc-secondary-services {
     display: none; /* Hidden by default, shown via JavaScript */
     margin-top: 24px;
-    padding: 20px 0;
+    padding: 0 0 20px 0;
     background: transparent;
     animation: slideDown 0.4s cubic-bezier(0.4, 0, 0.2, 1);
     will-change: transform, opacity;
@@ -665,28 +665,28 @@ body {
     display: flex !important;
     flex-direction: row;
     gap: 10px;
-    padding: 16px 0 !important;
+    padding: 0 0 16px 0 !important;
 }
 
 /* Responsive gap */
 @media (min-width: 1200px) {
     .csc-secondary-services {
         gap: 12px;
-        padding: 18px 0 !important;
+        padding: 0 0 18px 0 !important;
     }
 }
 
 @media (min-width: 992px) and (max-width: 1199px) {
     .csc-secondary-services {
         gap: 11px;
-        padding: 17px 0 !important;
+        padding: 0 0 17px 0 !important;
     }
 }
 
 @media (min-width: 768px) and (max-width: 991px) {
     .csc-secondary-services {
         gap: 10px;
-        padding: 16px 0 !important;
+        padding: 0 0 16px 0 !important;
     }
 }
 
@@ -789,9 +789,9 @@ body {
 /* Go Button */
 .csc-go-button {
     display: none; /* Hidden by default */
-    margin-top: 24px;
+    margin-top: 4px;
     margin-bottom: 24px;
-    padding: 16px 40px;
+    padding: 11px 35px;
     background: linear-gradient(135deg, #2196F3 0%, #1976D2 100%);
     color: #fff;
     border: none;
@@ -841,13 +841,11 @@ body {
 /* Third-level services container - Horizontal scrollable */
 .csc-tertiary-services {
     display: none; /* Hidden by default, shown via JavaScript */
-    margin-top: 24px;
     padding: 20px 0;
     background: transparent;
     animation: slideDown 0.4s cubic-bezier(0.4, 0, 0.2, 1);
     will-change: transform, opacity;
     overflow-x: auto;
-    overflow-y: hidden;
     -webkit-overflow-scrolling: touch;
     scrollbar-width: thin;
     scrollbar-color: #CBD5E0 #F7FAFC;

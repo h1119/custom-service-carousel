@@ -724,22 +724,87 @@
             }
         });
 
-        // Click outside handler
-        $(document).on('click', function(e) {
-            const $target = $(e.target);
-            if (!$target.closest('.csc-main-categories .csc-service-box').length && 
-                !$target.closest('#goButton').length &&
-                !$target.closest('#secondaryServices').length &&
-                !$target.closest('#tertiaryServices').length) {
-                // Clicked outside of service boxes
-                selectedSecondaryService = null;
-                selectedSecondaryServiceId = null;
-                selectedTertiaryServices = new Set();
-                $secondaryServicesContainer.hide();
-                $tertiaryServicesContainer.hide();
-                $goButton.hide();
-                $carousel.find(".csc-main-categories .csc-service-box").removeClass("marked");
+        // Click outside handler - REMOVED: Choices will remain visible when clicking outside
+
+        // Function to load selections from URL parameters
+        function loadSelectionsFromURL() {
+            try {
+                const urlParams = new URLSearchParams(window.location.search);
+                const filterDirectoryCategory = urlParams.get('filter_directory_category');
+                const filterFieldConstarcion = urlParams.getAll('filter_field_constarcion[]');
+
+                // If no URL parameters, exit
+                if (!filterDirectoryCategory) {
+                    return;
+                }
+
+                // Find the secondary service that matches this category ID
+                let foundCategory = null;
+                let foundSecondaryService = null;
+
+                // Search through all categories and their secondary services
+                for (const category in cscData.secondaryServices) {
+                    const secondaryServices = cscData.secondaryServices[category];
+                    for (let i = 0; i < secondaryServices.length; i++) {
+                        const service = secondaryServices[i];
+                        if (service.id) {
+                            // Extract numeric ID from service ID (e.g., 'secondary-service-83' -> '83')
+                            const idMatch = service.id.match(/\d+$/);
+                            if (idMatch && idMatch[0] === filterDirectoryCategory) {
+                                foundCategory = category;
+                                foundSecondaryService = service;
+                                break;
+                            }
+                        }
+                    }
+                    if (foundCategory) break;
+                }
+
+                // If we found a matching secondary service
+                if (foundCategory && foundSecondaryService) {
+                    // Find and click the main category
+                    const $mainCategoryBox = $carousel.find(".csc-main-categories .csc-service-box[data-category='" + foundCategory + "']");
+                    if ($mainCategoryBox.length) {
+                        // Trigger click on main category to show secondary services
+                        $mainCategoryBox.trigger('click');
+
+                        // Wait for secondary services to be rendered, then select the matching one
+                        setTimeout(function() {
+                            const $secondaryServiceBox = $secondaryServicesContainer.find('#' + foundSecondaryService.id);
+                            if ($secondaryServiceBox.length) {
+                                // Select the secondary service
+                                $secondaryServiceBox.trigger('click');
+
+                                // If there are tertiary services to select
+                                if (filterFieldConstarcion.length > 0) {
+                                    // Wait for tertiary services to be rendered
+                                    setTimeout(function() {
+                                        filterFieldConstarcion.forEach(function(tertiaryTitle) {
+                                            // Find and click matching tertiary service
+                                            $tertiaryServicesContainer.find('.csc-service-box').each(function() {
+                                                const $tertiaryBox = $(this);
+                                                const tertiaryText = $tertiaryBox.find('h4').text().trim();
+                                                if (tertiaryText === tertiaryTitle) {
+                                                    if (!$tertiaryBox.hasClass('marked')) {
+                                                        $tertiaryBox.trigger('click');
+                                                    }
+                                                }
+                                            });
+                                        });
+                                    }, 300);
+                                }
+                            }
+                        }, 300);
+                    }
+                }
+            } catch (error) {
+                console.error("Error loading selections from URL:", error);
             }
-        });
+        }
+
+        // Load selections from URL on page load (after a short delay to ensure DOM is ready)
+        setTimeout(function() {
+            loadSelectionsFromURL();
+        }, 100);
     }
 })(jQuery);
