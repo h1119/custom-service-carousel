@@ -515,6 +515,54 @@
         // Track selected tertiary services (multiselect)
         let selectedTertiaryServices = new Set();
 
+        // Helper function to scroll to element smoothly within its container
+        function scrollToElement($element, offset) {
+            if (!$element || !$element.length) return;
+            
+            // Check if element is inside secondary or tertiary services container
+            const $secondaryContainer = $element.closest('#secondaryServices');
+            const $tertiaryContainer = $element.closest('#tertiaryServices');
+            
+            if ($secondaryContainer.length) {
+                // Scroll horizontally within secondary services container
+                const containerLeft = $secondaryContainer.offset().left;
+                const containerScrollLeft = $secondaryContainer.scrollLeft();
+                const elementLeft = $element.offset().left;
+                const elementWidth = $element.outerWidth();
+                const containerWidth = $secondaryContainer.outerWidth();
+                
+                // Calculate scroll position to center the element
+                const scrollPosition = containerScrollLeft + (elementLeft - containerLeft) - (containerWidth / 2) + (elementWidth / 2);
+                
+                $secondaryContainer.animate({
+                    scrollLeft: scrollPosition
+                }, 500);
+            } else if ($tertiaryContainer.length) {
+                // Scroll horizontally within tertiary services container
+                const containerLeft = $tertiaryContainer.offset().left;
+                const containerScrollLeft = $tertiaryContainer.scrollLeft();
+                const elementLeft = $element.offset().left;
+                const elementWidth = $element.outerWidth();
+                const containerWidth = $tertiaryContainer.outerWidth();
+                
+                // Calculate scroll position to center the element
+                const scrollPosition = containerScrollLeft + (elementLeft - containerLeft) - (containerWidth / 2) + (elementWidth / 2);
+                
+                $tertiaryContainer.animate({
+                    scrollLeft: scrollPosition
+                }, 500);
+            } else {
+                // Fallback: scroll page vertically if not in a container
+                offset = offset || 100;
+                const elementTop = $element.offset().top;
+                const offsetPosition = elementTop - offset;
+
+                $('html, body').animate({
+                    scrollTop: offsetPosition
+                }, 500);
+            }
+        }
+
         // Handle Go button clicks
         $goButton.on('click', function(e) {
             e.preventDefault();
@@ -663,6 +711,12 @@
                                 selectedSecondaryService = service.title;
                                     selectedSecondaryServiceId = service.id || null;
                                 
+                                // Scroll to the selected secondary service
+                                const $selectedSecondaryBox = $(this);
+                                setTimeout(function() {
+                                    scrollToElement($selectedSecondaryBox, 150);
+                                }, 100);
+                                
                                 // Check if this service has tertiary services
                                 if (hasTertiaryServices) {
                                     // Show tertiary services (multiselect)
@@ -686,6 +740,11 @@
                                             
                                             if ($(this).hasClass("marked")) {
                                                 selectedTertiaryServices.add(tertiaryService.title);
+                                                // Scroll to the selected tertiary service
+                                                const $selectedTertiaryBox = $(this);
+                                                setTimeout(function() {
+                                                    scrollToElement($selectedTertiaryBox, 150);
+                                                }, 100);
                                             } else {
                                                 selectedTertiaryServices.delete(tertiaryService.title);
                                             }
@@ -806,5 +865,247 @@
         setTimeout(function() {
             loadSelectionsFromURL();
         }, 100);
+
+        // Initialize Service Search
+        function initServiceSearch() {
+            const $searchInput = $('#serviceSearchInput');
+            const $searchDropdown = $('#serviceSearchDropdown');
+            const $searchContainer = $('#serviceSearchContainer');
+
+            if (!$searchInput.length || !$searchDropdown.length) {
+                return;
+            }
+
+            // Build a flat list of all services for searching
+            function buildServiceList() {
+                const serviceList = [];
+
+                // Add main services
+                $carousel.find('.csc-main-categories .csc-service-box').each(function() {
+                    const $box = $(this);
+                    // Try to get icon from the box (could be SVG or icon class)
+                    let icon = 'fas fa-circle';
+                    const $icon = $box.find('i');
+                    if ($icon.length) {
+                        icon = $icon.attr('class') || 'fas fa-circle';
+                    }
+                    serviceList.push({
+                        type: 'main',
+                        title: $box.find('h4').text().trim(),
+                        category: $box.attr('data-category'),
+                        url: $box.attr('data-url'),
+                        icon: icon,
+                        element: $box
+                    });
+                });
+
+                // Add secondary services from cscData
+                if (cscData && cscData.secondaryServices) {
+                    for (const category in cscData.secondaryServices) {
+                        const secondaryServices = cscData.secondaryServices[category];
+                        secondaryServices.forEach(function(service) {
+                            serviceList.push({
+                                type: 'secondary',
+                                title: service.title,
+                                category: category,
+                                serviceId: service.id,
+                                icon: service.icon,
+                                element: null // Will be set when rendered
+                            });
+                        });
+                    }
+                }
+
+                // Add tertiary services from cscData
+                if (cscData && cscData.tertiaryServices) {
+                    for (const category in cscData.tertiaryServices) {
+                        const categoryTertiary = cscData.tertiaryServices[category];
+                        for (const secondaryTitle in categoryTertiary) {
+                            const tertiaryServices = categoryTertiary[secondaryTitle];
+                            tertiaryServices.forEach(function(service) {
+                                serviceList.push({
+                                    type: 'tertiary',
+                                    title: service.title,
+                                    category: category,
+                                    secondaryTitle: secondaryTitle,
+                                    icon: service.icon,
+                                    element: null // Will be set when rendered
+                                });
+                            });
+                        }
+                    }
+                }
+
+                return serviceList;
+            }
+
+            const allServices = buildServiceList();
+
+            // Filter services based on search text
+            function filterServices(searchText) {
+                if (!searchText || searchText.trim() === '') {
+                    return [];
+                }
+
+                const searchLower = searchText.toLowerCase().trim();
+                return allServices.filter(function(service) {
+                    return service.title.toLowerCase().includes(searchLower);
+                });
+            }
+
+            // Display search results
+            function displaySearchResults(results) {
+                $searchDropdown.empty();
+
+                if (results.length === 0) {
+                    $searchDropdown.append(
+                        $('<div>').addClass('csc-search-no-results').text('لا توجد نتائج')
+                    );
+                    $searchDropdown.show();
+                    return;
+                }
+
+                // Limit results to 10 for better UX
+                const limitedResults = results.slice(0, 10);
+
+                limitedResults.forEach(function(service) {
+                    let displayText = service.title;
+                    if (service.type === 'secondary') {
+                        displayText = service.category + ' > ' + service.title;
+                    } else if (service.type === 'tertiary') {
+                        displayText = service.category + ' > ' + service.secondaryTitle + ' > ' + service.title;
+                    }
+
+                    const $resultItem = $('<div>')
+                        .addClass('csc-search-result-item')
+                        .attr('data-service-type', service.type)
+                        .html('<i class="' + (service.icon || 'fas fa-circle') + '"></i><span>' + displayText + '</span>');
+
+                    // Store service data
+                    $resultItem.data('service', service);
+
+                    $resultItem.on('click', function(e) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        selectServiceFromSearch(service);
+                    });
+
+                    $searchDropdown.append($resultItem);
+                });
+
+                $searchDropdown.show();
+            }
+
+            // Select service from search results
+            function selectServiceFromSearch(service) {
+                // Hide search dropdown and clear input
+                $searchDropdown.hide();
+                $searchInput.val('');
+
+                if (service.type === 'main') {
+                    // Click the main category
+                    const $mainBox = $carousel.find('.csc-main-categories .csc-service-box[data-category="' + service.category + '"]');
+                    if ($mainBox.length) {
+                        $mainBox.trigger('click');
+                    }
+                } else if (service.type === 'secondary') {
+                    // Find and click the main category first, then the secondary service
+                    const $mainBox = $carousel.find('.csc-main-categories .csc-service-box[data-category="' + service.category + '"]');
+                    if ($mainBox.length) {
+                        $mainBox.trigger('click');
+                        // Wait for secondary services to render, then click the matching one
+                        setTimeout(function() {
+                            const $secondaryBox = $secondaryServicesContainer.find('#' + service.serviceId);
+                            if ($secondaryBox.length) {
+                                $secondaryBox.trigger('click');
+                                // Scroll to the selected secondary service
+                                setTimeout(function() {
+                                    scrollToElement($secondaryBox, 150);
+                                }, 150);
+                            }
+                        }, 300);
+                    }
+                } else if (service.type === 'tertiary') {
+                    // Find main category, then secondary, then tertiary
+                    const $mainBox = $carousel.find('.csc-main-categories .csc-service-box[data-category="' + service.category + '"]');
+                    if ($mainBox.length) {
+                        $mainBox.trigger('click');
+                        // Wait for secondary services to render
+                        setTimeout(function() {
+                            // Find the secondary service by title
+                            let $secondaryBox = null;
+                            $secondaryServicesContainer.find('.csc-service-box').each(function() {
+                                if ($(this).find('h4').text().trim() === service.secondaryTitle) {
+                                    $secondaryBox = $(this);
+                                    return false; // break
+                                }
+                            });
+                            if ($secondaryBox && $secondaryBox.length) {
+                                $secondaryBox.trigger('click');
+                                // Wait for tertiary services to render
+                                setTimeout(function() {
+                                    // Find and click the tertiary service
+                                    let $tertiaryBox = null;
+                                    $tertiaryServicesContainer.find('.csc-service-box').each(function() {
+                                        if ($(this).find('h4').text().trim() === service.title) {
+                                            $tertiaryBox = $(this);
+                                            $(this).trigger('click');
+                                            return false; // break
+                                        }
+                                    });
+                                    // Scroll to the selected tertiary service
+                                    if ($tertiaryBox && $tertiaryBox.length) {
+                                        setTimeout(function() {
+                                            scrollToElement($tertiaryBox, 150);
+                                        }, 150);
+                                    }
+                                }, 300);
+                            }
+                        }, 300);
+                    }
+                }
+            }
+
+            // Handle search input
+            let searchTimeout;
+            $searchInput.on('input', function() {
+                const searchText = $(this).val();
+                clearTimeout(searchTimeout);
+                
+                if (searchText.trim() === '') {
+                    $searchDropdown.hide();
+                    return;
+                }
+
+                searchTimeout = setTimeout(function() {
+                    const results = filterServices(searchText);
+                    displaySearchResults(results);
+                }, 200);
+            });
+
+            // Handle focus
+            $searchInput.on('focus', function() {
+                const searchText = $(this).val();
+                if (searchText.trim() !== '') {
+                    const results = filterServices(searchText);
+                    displaySearchResults(results);
+                }
+            });
+
+            // Close dropdown when clicking outside
+        $(document).on('click', function(e) {
+                if (!$searchContainer.is(e.target) && $searchContainer.has(e.target).length === 0) {
+                    $searchDropdown.hide();
+                }
+            });
+
+            // Prevent closing when clicking inside dropdown
+            $searchDropdown.on('click', function(e) {
+                e.stopPropagation();
+            });
+        }
+
+        // Initialize service search
+        initServiceSearch();
     }
 })(jQuery);

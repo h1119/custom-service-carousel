@@ -19,7 +19,7 @@ if (empty($main_services)) {
 $directory_base_slug = isset($GLOBALS['csc_current_link']) ? $GLOBALS['csc_current_link'] : 'directory-listing';
 ?>
 <div class="csc-service-carousel" data-directory-base-slug="<?php echo esc_attr($directory_base_slug); ?>">
-    <!-- Location Selector -->
+    <!-- Location Selector and Search -->
     <div class="csc-location-selector">
         <label for="locationSelect" class="csc-location-label">
             <i class="fas fa-map-marker-alt"></i>
@@ -41,6 +41,25 @@ $directory_base_slug = isset($GLOBALS['csc_current_link']) ? $GLOBALS['csc_curre
         <!-- Hidden native select for form submission and fallback -->
         <select id="locationSelect" class="csc-location-select" style="display: none;" aria-hidden="true">
         </select>
+        
+        <!-- Service Search Field -->
+        <div class="csc-service-search-wrapper">
+            <label for="serviceSearchInput" class="csc-location-label">
+                <i class="fas fa-search"></i>
+            </label>
+            <div class="csc-service-search" id="serviceSearchContainer">
+                <input 
+                    type="text" 
+                    id="serviceSearchInput" 
+                    class="csc-service-search-input" 
+                    placeholder="ابحث عن خدمة..."
+                    autocomplete="off"
+                />
+                <div class="csc-service-search-dropdown" id="serviceSearchDropdown" style="display: none;">
+                    <!-- Search results will be dynamically inserted here by JavaScript -->
+                </div>
+            </div>
+        </div>
     </div>
     
     <!-- Main Categories Grid (4 categories displayed) -->
