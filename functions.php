@@ -4,13 +4,131 @@
 // Add a new page template for the service carousel demo
 add_filter('theme_page_templates', function ($templates) {
     $templates['service-carousel-template.php'] = __('Service Carousel demo', 'saqf');
+    $templates['list-of-services-template.php'] = __('List of Services', 'saqf');
     return $templates;
 });
+
+// Add meta box for directory base link on page edit screen
+add_action('add_meta_boxes', 'csc_add_directory_base_link_meta_box');
+function csc_add_directory_base_link_meta_box() {
+    global $post;
+    
+    // Only show meta box if page uses List of Services template or if it's a new page
+    if ($post) {
+        $page_template = get_page_template_slug($post->ID);
+        // Show if using list-of-services template, or if no template is set yet (new page)
+        if ($page_template === 'list-of-services-template.php' || empty($page_template)) {
+            add_meta_box(
+                'csc_directory_base_link',
+                __('Directory Base Link', 'saqf'),
+                'csc_directory_base_link_meta_box_callback',
+                'page',
+                'side',
+                'default'
+            );
+        }
+    } else {
+        // For new pages, show the meta box
+        add_meta_box(
+            'csc_directory_base_link',
+            __('Directory Base Link', 'saqf'),
+            'csc_directory_base_link_meta_box_callback',
+            'page',
+            'side',
+            'default'
+        );
+    }
+}
+
+// Meta box callback
+function csc_directory_base_link_meta_box_callback($post) {
+    // Add nonce for security
+    wp_nonce_field('csc_directory_base_link_meta_box', 'csc_directory_base_link_meta_box_nonce');
+    
+    // Get current value
+    $directory_base_link = get_post_meta($post->ID, '_csc_directory_base_link', true);
+    if (empty($directory_base_link)) {
+        $directory_base_link = 'directory-listing';
+    }
+    
+    // Get page template
+    $page_template = get_page_template_slug($post->ID);
+    
+    ?>
+    <p>
+        <label for="csc_directory_base_link">
+            <strong><?php _e('Base URL Slug:', 'saqf'); ?></strong>
+        </label>
+    </p>
+    <p>
+        <input 
+            type="text" 
+            id="csc_directory_base_link" 
+            name="csc_directory_base_link" 
+            value="<?php echo esc_attr($directory_base_link); ?>" 
+            placeholder="directory-listing"
+        />
+    </p>
+    <p class="description">
+        <?php _e('Base URL slug for directory listing pages. Default: directory-listing. Do not include leading or trailing slashes.', 'saqf'); ?>
+    </p>
+    <?php if ($page_template !== 'list-of-services-template.php' && !empty($page_template)) : ?>
+        <p class="description" style="color: #d63638;">
+            <?php _e('Note: This setting only applies when using the "List of Services" template.', 'saqf'); ?>
+        </p>
+    <?php endif; ?>
+    <?php
+}
+
+// Save meta box data
+add_action('save_post', 'csc_save_directory_base_link_meta_box');
+function csc_save_directory_base_link_meta_box($post_id) {
+    // Check if nonce is set
+    if (!isset($_POST['csc_directory_base_link_meta_box_nonce'])) {
+        return;
+    }
+    
+    // Verify nonce
+    if (!wp_verify_nonce($_POST['csc_directory_base_link_meta_box_nonce'], 'csc_directory_base_link_meta_box')) {
+        return;
+    }
+    
+    // Check if autosave
+    if (defined('DOING_AUTOSAVE') && DOING_AUTOSAVE) {
+        return;
+    }
+    
+    // Check user permissions
+    if (!current_user_can('edit_page', $post_id)) {
+        return;
+    }
+    
+    // Save the meta field
+    if (isset($_POST['csc_directory_base_link'])) {
+        $directory_base_link = sanitize_text_field($_POST['csc_directory_base_link']);
+        // Remove leading/trailing slashes
+        $directory_base_link = trim($directory_base_link, '/');
+        // If empty, use default
+        if (empty($directory_base_link)) {
+            $directory_base_link = 'directory-listing';
+        }
+        update_post_meta($post_id, '_csc_directory_base_link', $directory_base_link);
+    } else {
+        // If not set, use default
+        update_post_meta($post_id, '_csc_directory_base_link', 'directory-listing');
+    }
+}
 
 // Include the plugin template for the service carousel demo
 add_filter('template_include', function ($template) {
     if (is_singular() && get_page_template_slug() === 'service-carousel-template.php') {
         $plugin_template = MY_PLUGIN_PATH . 'templates/service-carousel-template.php';
+        if (file_exists($plugin_template)) {
+            return $plugin_template;
+        }
+    }
+    if (is_singular() && get_page_template_slug() === 'list-of-services-template.php') {
+        $plugin_template = MY_PLUGIN_PATH . 'templates/list-of-services-template.php';
         if (file_exists($plugin_template)) {
             return $plugin_template;
         }
@@ -36,6 +154,62 @@ function csc_service_carousel_shortcode($atts) {
     return ob_get_clean();
 }
 add_shortcode('service_carousel', 'csc_service_carousel_shortcode');
+
+// Shortcode to display the services list
+function csc_services_list_shortcode($atts) {
+    // Parse shortcode attributes
+    $atts = shortcode_atts(array(
+        'redirect_page' => 'directory-listing' // Default to 'directory-listing' if not provided
+    ), $atts, 'csc_services_list');
+    
+    // Store the redirect page in a global variable for use in the template
+    $GLOBALS['csc_services_list_redirect_page'] = sanitize_text_field($atts['redirect_page']);
+    
+    ob_start();
+    include CSC_PLUGIN_DIR . 'templates/services-list-content.php';
+    $output = ob_get_clean();
+    
+    unset($GLOBALS['csc_services_list_redirect_page']);
+    
+    return $output;
+}
+add_shortcode('csc_services_list', 'csc_services_list_shortcode');
+
+// Function to generate URL for a service (for services list - matching carousel format)
+function csc_get_service_url_list($secondary_service_id = null, $tertiary_service_title = null, $secondary_service_title = null, $redirect_page = 'directory-listing') {
+    $filter_field_mapping = csc_get_filter_field_mapping();
+    
+    $directory_base_link = trim($redirect_page, '/');
+    if (empty($directory_base_link)) {
+        $directory_base_link = 'directory-listing';
+    }
+    
+    $base_url = home_url('/' . $directory_base_link . '/');
+    $url = $base_url;
+    
+    // Extract numeric ID from secondary service ID (e.g., 'secondary-service-83' -> '83')
+    if ($secondary_service_id) {
+        $category_id = preg_replace('/[^0-9]/', '', $secondary_service_id);
+        if ($category_id) {
+            $url = add_query_arg('filter_directory_category[]', $category_id, $url);
+        }
+    }
+    
+    // Add tertiary service to filter field if provided
+    if ($tertiary_service_title && $secondary_service_title && $filter_field_mapping) {
+        $filter_field_slug = isset($filter_field_mapping[$secondary_service_title]) 
+            ? $filter_field_mapping[$secondary_service_title] 
+            : 'filter_field_constarcion'; // Default fallback
+        
+        $url = add_query_arg($filter_field_slug . '[]', $tertiary_service_title, $url);
+    }
+    
+    // Add fixed query parameters (matching carousel)
+    $url = add_query_arg('filter', '1', $url);
+    $url = add_query_arg('sort', 'post_published', $url);
+    
+    return $url;
+}
 
 // Get main services data - 4 main categories only
 function csc_get_main_services() {
@@ -168,8 +342,8 @@ function csc_get_tertiary_services() {
                 array('icon' => 'fas fa-th-large', 'title' => 'الطاقة الشمسية'),
             ),
             'أعمال المعادن والخشب' => array(
-                array('icon' => 'fas fa-building', 'title' => 'ألمنيوم'),
-                array('icon' => 'fas fa-toolbox', 'title' => 'نجارة'),
+                array('icon' => 'fas fa-building', 'title' => 'الألمنيوم'),
+                array('icon' => 'fas fa-toolbox', 'title' => 'نجاره'),
                 array('icon' => 'fas fa-tools', 'title' => 'حدادة'),
                 array('icon' => 'fas fa-door-open', 'title' => 'أبواب'),
                 array('icon' => 'fas fa-couch', 'title' => 'درابزين'),
@@ -177,19 +351,19 @@ function csc_get_tertiary_services() {
                 array('icon' => 'fas fa-shield-alt', 'title' => 'سواتر'),
                 array('icon' => 'fas fa-window-maximize', 'title' => 'نوافذ'),
             ),
-            'الخزانات' => array(
+            'خزانات' => array(
                 array('icon' => 'fas fa-tint', 'title' => 'مياه'),
                 array('icon' => 'fas fa-burn', 'title' => 'غاز'),
                 array('icon' => 'fas fa-water', 'title' => 'بيارات'),
                 array('icon' => 'fas fa-drum', 'title' => 'خزانات دفن'),
             ),
-            'الديكور الداخلي' => array(
+            'أعمال الديكور' => array(
                 array('icon' => 'fas fa-archway', 'title' => 'جبس بورد'),
                 array('icon' => 'fas fa-gopuram', 'title' => 'حجر صناعي'),
                 array('icon' => 'fas fa-th-large', 'title' => 'GRC / جي آر سي'),
                 array('icon' => 'fas fa-brush', 'title' => 'دهانات'),
             ),
-            'مكاتب هندسية' => array(
+            'مكاتب' => array(
                 array('icon' => 'fas fa-couch', 'title' => 'تصميم داخلي'),
                 array('icon' => 'fas fa-home', 'title' => 'تصميم خارجي'),
                 array('icon' => 'fas fa-leaf', 'title' => 'تصميم حدائق'),
@@ -227,10 +401,10 @@ function csc_get_tertiary_services() {
 function csc_get_filter_field_mapping() {
     return array(
         'المقاولات' => 'filter_field_constarcion',
-        'أعمال المعادن والخشب' => 'filter_field_materials',
-        'الخزانات' => 'filter_field_tanks',
-        'الديكور الداخلي' => 'filter_field_design',
-        'مكاتب هندسية' => 'filter_field_offices',
+        'أعمال المعادن والخشب' => 'filter_field_services',
+        'خزانات' => 'filter_field_tanksfull',
+        'أعمال الديكور' => 'filter_field_design',
+        'مكاتب' => 'filter_field_offices',
         'الأعمال المائية والحدائق' => 'filter_field_water',
         'خدمات الأمان والسلامة' => 'filter_field_fire',
         'سباكة' => 'filter_field_plumbing',

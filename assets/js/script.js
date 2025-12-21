@@ -625,7 +625,7 @@
                     }
                 }
 
-                url.searchParams.append("filter_directory_category", categoryId);
+                url.searchParams.append("filter_directory_category[]", categoryId);
 
                 // Add selected tertiary services to the appropriate filter field (dynamic based on secondary service)
                 if (selectedTertiaryServices.size > 0 && selectedSecondaryService) {
@@ -795,7 +795,7 @@
         function loadSelectionsFromURL() {
             try {
                 const urlParams = new URLSearchParams(window.location.search);
-                const filterDirectoryCategory = urlParams.get('filter_directory_category');
+                const filterDirectoryCategory = urlParams.get('filter_directory_category[]');
 
                 // If no URL parameters, exit
                 if (!filterDirectoryCategory) {

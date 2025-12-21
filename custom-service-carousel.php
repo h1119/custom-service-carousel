@@ -3,7 +3,7 @@
 Plugin Name: Custom Service Carousel
 Plugin URI: https://saqf.sa
 Description: A beautiful, responsive service carousel with secondary services and search functionality
-Version: 2.0.9
+Version: 2.1.1
 Author: saqf.sa
 Author URI: https://saqf.sa
 License: GPL v2 or later
