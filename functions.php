@@ -221,6 +221,22 @@ function csc_get_tertiary_services() {
     );
 }
 
+// Get filter field mapping for secondary services
+// Maps secondary service titles to their corresponding filter field slugs
+// This mapping is based on the comments in csc_get_tertiary_services()
+function csc_get_filter_field_mapping() {
+    return array(
+        'المقاولات' => 'filter_field_constarcion',
+        'أعمال المعادن والخشب' => 'filter_field_materials',
+        'الخزانات' => 'filter_field_tanks',
+        'الديكور الداخلي' => 'filter_field_design',
+        'مكاتب هندسية' => 'filter_field_offices',
+        'الأعمال المائية والحدائق' => 'filter_field_water',
+        'خدمات الأمان والسلامة' => 'filter_field_fire',
+        'سباكة' => 'filter_field_plumbing',
+    );
+}
+
 
 // AJAX handler for locations (optional - can be extended)
 function csc_get_locations_ajax() {

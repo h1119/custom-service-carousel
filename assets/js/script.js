@@ -627,10 +627,16 @@
 
                 url.searchParams.append("filter_directory_category", categoryId);
 
-                // Add selected tertiary services to filter_field_services
-                if (selectedTertiaryServices.size > 0) {
+                // Add selected tertiary services to the appropriate filter field (dynamic based on secondary service)
+                if (selectedTertiaryServices.size > 0 && selectedSecondaryService) {
+                    // Get the filter field slug for the selected secondary service
+                    let filterFieldSlug = 'filter_field_constarcion'; // Default fallback
+                    if (typeof cscData !== 'undefined' && cscData.filterFieldMapping && cscData.filterFieldMapping[selectedSecondaryService]) {
+                        filterFieldSlug = cscData.filterFieldMapping[selectedSecondaryService];
+                    }
+                    
                     selectedTertiaryServices.forEach(function(tertiaryService) {
-                        url.searchParams.append("filter_field_constarcion[]", tertiaryService);
+                        url.searchParams.append(filterFieldSlug + "[]", tertiaryService);
                     });
                 } 
 
@@ -790,7 +796,6 @@
             try {
                 const urlParams = new URLSearchParams(window.location.search);
                 const filterDirectoryCategory = urlParams.get('filter_directory_category');
-                const filterFieldConstarcion = urlParams.getAll('filter_field_constarcion[]');
 
                 // If no URL parameters, exit
                 if (!filterDirectoryCategory) {
@@ -821,6 +826,15 @@
 
                 // If we found a matching secondary service
                 if (foundCategory && foundSecondaryService) {
+                    // Get the filter field slug for this secondary service
+                    let filterFieldSlug = 'filter_field_constarcion'; // Default fallback
+                    if (typeof cscData !== 'undefined' && cscData.filterFieldMapping && cscData.filterFieldMapping[foundSecondaryService.title]) {
+                        filterFieldSlug = cscData.filterFieldMapping[foundSecondaryService.title];
+                    }
+                    
+                    // Read tertiary services from the appropriate filter field parameter
+                    const filterFieldTertiaryServices = urlParams.getAll(filterFieldSlug + '[]');
+
                     // Find and click the main category
                     const $mainCategoryBox = $carousel.find(".csc-main-categories .csc-service-box[data-category='" + foundCategory + "']");
                     if ($mainCategoryBox.length) {
@@ -835,10 +849,10 @@
                                 $secondaryServiceBox.trigger('click');
 
                                 // If there are tertiary services to select
-                                if (filterFieldConstarcion.length > 0) {
+                                if (filterFieldTertiaryServices.length > 0) {
                                     // Wait for tertiary services to be rendered
                                     setTimeout(function() {
-                                        filterFieldConstarcion.forEach(function(tertiaryTitle) {
+                                        filterFieldTertiaryServices.forEach(function(tertiaryTitle) {
                                             // Find and click matching tertiary service
                                             $tertiaryServicesContainer.find('.csc-service-box').each(function() {
                                                 const $tertiaryBox = $(this);

@@ -59,9 +59,11 @@ function csc_enqueue_scripts() {
     // Localize script with data
     $secondary_services = csc_get_secondary_services();
     $tertiary_services = csc_get_tertiary_services();
+    $filter_field_mapping = csc_get_filter_field_mapping();
     wp_localize_script('csc-script', 'cscData', array(
         'secondaryServices' => $secondary_services,
-        'tertiaryServices' => $tertiary_services
+        'tertiaryServices' => $tertiary_services,
+        'filterFieldMapping' => $filter_field_mapping
     ));
     
     // Localize script for AJAX
