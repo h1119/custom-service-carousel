@@ -363,7 +363,7 @@ $redirect_page = isset($GLOBALS['csc_services_list_redirect_page'])
                         $secondary_url = csc_get_service_url_list($secondary_id, null, null, $redirect_page);
                         ?>
                         <a href="<?php echo esc_url($secondary_url); ?>" class="csc-secondary-service-link">
-                            عرض جميع خدمات <?php echo esc_html($secondary_title); ?>
+                            عرض جميع شركات <?php echo esc_html($secondary_title); ?>
                         </a>
                     </div>
                 <?php endforeach; ?>

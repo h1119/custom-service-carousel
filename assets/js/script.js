@@ -879,25 +879,39 @@
         setTimeout(function() {
             loadSelectionsFromURL();
         }, 100);
+    }
 
-        // Initialize Service Search
-        function initServiceSearch() {
-            const $searchInput = $('#serviceSearchInput');
-            const $searchDropdown = $('#serviceSearchDropdown');
-            const $searchContainer = $('#serviceSearchContainer');
+    // Initialize Service Search (standalone function - works with or without carousel)
+    function initServiceSearch() {
+        // Prevent double initialization
+        if ($('#serviceSearchInput').data('initialized')) {
+            return;
+        }
+        $('#serviceSearchInput').data('initialized', true);
+        const $searchInput = $('#serviceSearchInput');
+        const $searchDropdown = $('#serviceSearchDropdown');
+        const $searchContainer = $('#serviceSearchContainer');
 
-            if (!$searchInput.length || !$searchDropdown.length) {
-                return;
-            }
+        if (!$searchInput.length || !$searchDropdown.length) {
+            return;
+        }
 
-            // Build a flat list of all services for searching
-            function buildServiceList() {
-                const serviceList = [];
+        // Check if carousel exists
+        const $carousel = $('.csc-service-carousel');
+        const hasCarousel = $carousel.length > 0;
+        const $secondaryServicesContainer = $('#secondaryServices');
+        const $tertiaryServicesContainer = $('#tertiaryServices');
+        const directoryBaseSlug = hasCarousel ? ($carousel.attr('data-directory-base-slug') || 'directory-listing') : 'directory-listing';
 
-                // Add main services
+        // Build a flat list of all services for searching
+        function buildServiceList() {
+            const serviceList = [];
+
+            // Add main services
+            if (hasCarousel) {
+                // Get from carousel DOM
                 $carousel.find('.csc-main-categories .csc-service-box').each(function() {
                     const $box = $(this);
-                    // Try to get icon from the box (could be SVG or icon class)
                     let icon = 'fas fa-circle';
                     const $icon = $box.find('i');
                     if ($icon.length) {
@@ -912,163 +926,218 @@
                         element: $box
                     });
                 });
+            } else {
+                // Fallback: use hardcoded main services
+                const mainServices = [
+                    { title: 'البناء الذاتي والتشطيب', category: 'البناء الذاتي والتشطيب', icon: 'fas fa-tools' },
+                    { title: 'الصيانة والتنظيف', category: 'الصيانة والتنظيف', icon: 'fas fa-home' },
+                    { title: 'الموردين والمواد', category: 'الموردين والمواد', icon: 'fas fa-cube' },
+                    { title: 'التأجير والخدمات المساندة', category: 'التأجير والخدمات المساندة', icon: 'fas fa-truck' }
+                ];
+                mainServices.forEach(function(service) {
+                    serviceList.push({
+                        type: 'main',
+                        title: service.title,
+                        category: service.category,
+                        icon: service.icon
+                    });
+                });
+            }
 
-                // Add secondary services from cscData
-                if (cscData && cscData.secondaryServices) {
-                    for (const category in cscData.secondaryServices) {
-                        const secondaryServices = cscData.secondaryServices[category];
-                        secondaryServices.forEach(function(service) {
+            // Add secondary services from cscData
+            if (typeof cscData !== 'undefined' && cscData.secondaryServices) {
+                for (const category in cscData.secondaryServices) {
+                    const secondaryServices = cscData.secondaryServices[category];
+                    secondaryServices.forEach(function(service) {
+                        serviceList.push({
+                            type: 'secondary',
+                            title: service.title,
+                            category: category,
+                            serviceId: service.id,
+                            icon: service.icon,
+                            element: null
+                        });
+                    });
+                }
+            }
+
+            // Add tertiary services from cscData
+            if (typeof cscData !== 'undefined' && cscData.tertiaryServices) {
+                for (const category in cscData.tertiaryServices) {
+                    const categoryTertiary = cscData.tertiaryServices[category];
+                    for (const secondaryTitle in categoryTertiary) {
+                        const tertiaryServices = categoryTertiary[secondaryTitle];
+                        tertiaryServices.forEach(function(service) {
                             serviceList.push({
-                                type: 'secondary',
+                                type: 'tertiary',
                                 title: service.title,
                                 category: category,
-                                serviceId: service.id,
+                                secondaryTitle: secondaryTitle,
                                 icon: service.icon,
-                                element: null // Will be set when rendered
+                                element: null
                             });
                         });
                     }
                 }
+            }
 
-                // Add tertiary services from cscData
-                if (cscData && cscData.tertiaryServices) {
-                    for (const category in cscData.tertiaryServices) {
-                        const categoryTertiary = cscData.tertiaryServices[category];
-                        for (const secondaryTitle in categoryTertiary) {
-                            const tertiaryServices = categoryTertiary[secondaryTitle];
-                            tertiaryServices.forEach(function(service) {
-                                serviceList.push({
-                                    type: 'tertiary',
-                                    title: service.title,
-                                    category: category,
-                                    secondaryTitle: secondaryTitle,
-                                    icon: service.icon,
-                                    element: null // Will be set when rendered
-                                });
-                            });
+            return serviceList;
+        }
+
+        const allServices = buildServiceList();
+
+        // Filter services based on search text
+        function filterServices(searchText) {
+            if (!searchText || searchText.trim() === '') {
+                return [];
+            }
+
+            const searchLower = searchText.toLowerCase().trim();
+            return allServices.filter(function(service) {
+                return service.title.toLowerCase().includes(searchLower);
+            });
+        }
+
+        // Generate URL for a service (for standalone search)
+        function getServiceUrl(service) {
+            const baseSlug = directoryBaseSlug.replace(/^\/+|\/+$/g, '');
+            const baseUrl = window.location.origin + '/' + baseSlug + '/';
+            const url = new URL(baseUrl);
+
+            // Add filter and sort parameters
+            url.searchParams.append('filter', '1');
+            url.searchParams.append('sort', 'post_published');
+
+            if (service.type === 'secondary' && service.serviceId) {
+                // Extract numeric ID from service ID (e.g., 'secondary-service-83' -> '83')
+                const categoryId = service.serviceId.match(/\d+$/);
+                if (categoryId) {
+                    url.searchParams.append('filter_directory_category[]', categoryId[0]);
+                }
+            } else if (service.type === 'tertiary') {
+                // Find the secondary service ID for this tertiary service
+                if (typeof cscData !== 'undefined' && cscData.secondaryServices) {
+                    const secondaryServices = cscData.secondaryServices[service.category];
+                    if (secondaryServices) {
+                        const secondaryService = secondaryServices.find(function(s) {
+                            return s.title === service.secondaryTitle;
+                        });
+                        if (secondaryService && secondaryService.id) {
+                            const categoryId = secondaryService.id.match(/\d+$/);
+                            if (categoryId) {
+                                url.searchParams.append('filter_directory_category[]', categoryId[0]);
+                            }
                         }
                     }
                 }
 
-                return serviceList;
+                // Add tertiary service to filter field
+                if (typeof cscData !== 'undefined' && cscData.filterFieldMapping && cscData.filterFieldMapping[service.secondaryTitle]) {
+                    const filterFieldSlug = cscData.filterFieldMapping[service.secondaryTitle];
+                    url.searchParams.append(filterFieldSlug + '[]', service.title);
+                }
             }
 
-            const allServices = buildServiceList();
+            return url.toString();
+        }
 
-            // Filter services based on search text
-            function filterServices(searchText) {
-                if (!searchText || searchText.trim() === '') {
-                    return [];
-                }
+        // Display search results
+        function displaySearchResults(results) {
+            $searchDropdown.empty();
 
-                const searchLower = searchText.toLowerCase().trim();
-                return allServices.filter(function(service) {
-                    return service.title.toLowerCase().includes(searchLower);
-                });
-            }
-
-            // Display search results
-            function displaySearchResults(results) {
-                $searchDropdown.empty();
-
-                if (results.length === 0) {
-                    $searchDropdown.append(
-                        $('<div>').addClass('csc-search-no-results').text('لا توجد نتائج')
-                    );
-                    $searchDropdown.show();
-                    return;
-                }
-
-                // Limit results to 10 for better UX
-                const limitedResults = results.slice(0, 10);
-
-                limitedResults.forEach(function(service) {
-                    let displayText = service.title;
-                    if (service.type === 'secondary') {
-                        displayText = service.category + ' > ' + service.title;
-                    } else if (service.type === 'tertiary') {
-                        displayText = service.category + ' > ' + service.secondaryTitle + ' > ' + service.title;
-                    }
-
-                    const $resultItem = $('<div>')
-                        .addClass('csc-search-result-item')
-                        .attr('data-service-type', service.type)
-                        .html('<i class="' + (service.icon || 'fas fa-circle') + '"></i><span>' + displayText + '</span>');
-
-                    // Store service data
-                    $resultItem.data('service', service);
-
-                    $resultItem.on('click', function(e) {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        selectServiceFromSearch(service);
-                    });
-
-                    $searchDropdown.append($resultItem);
-                });
-
+            if (results.length === 0) {
+                $searchDropdown.append(
+                    $('<div>').addClass('csc-search-no-results').text('لا توجد نتائج')
+                );
                 $searchDropdown.show();
+                return;
             }
 
-            // Select service from search results
-            function selectServiceFromSearch(service) {
-                // Hide search dropdown and clear input
-                $searchDropdown.hide();
-                $searchInput.val('');
+            // Limit results to 10 for better UX
+            const limitedResults = results.slice(0, 10);
 
+            limitedResults.forEach(function(service) {
+                let displayText = service.title;
+                if (service.type === 'secondary') {
+                    displayText = service.category + ' > ' + service.title;
+                } else if (service.type === 'tertiary') {
+                    displayText = service.category + ' > ' + service.secondaryTitle + ' > ' + service.title;
+                }
+
+                const $resultItem = $('<div>')
+                    .addClass('csc-search-result-item')
+                    .attr('data-service-type', service.type)
+                    .html('<i class="' + (service.icon || 'fas fa-circle') + '"></i><span>' + displayText + '</span>');
+
+                // Store service data
+                $resultItem.data('service', service);
+
+                $resultItem.on('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    selectServiceFromSearch(service);
+                });
+
+                $searchDropdown.append($resultItem);
+            });
+
+            $searchDropdown.show();
+        }
+
+        // Select service from search results
+        function selectServiceFromSearch(service) {
+            // Hide search dropdown and clear input
+            $searchDropdown.hide();
+            $searchInput.val('');
+
+            if (hasCarousel) {
+                // Carousel mode: click elements
                 if (service.type === 'main') {
-                    // Click the main category
                     const $mainBox = $carousel.find('.csc-main-categories .csc-service-box[data-category="' + service.category + '"]');
                     if ($mainBox.length) {
                         $mainBox.trigger('click');
                     }
                 } else if (service.type === 'secondary') {
-                    // Find and click the main category first, then the secondary service
                     const $mainBox = $carousel.find('.csc-main-categories .csc-service-box[data-category="' + service.category + '"]');
                     if ($mainBox.length) {
                         $mainBox.trigger('click');
-                        // Wait for secondary services to render, then click the matching one
                         setTimeout(function() {
                             const $secondaryBox = $secondaryServicesContainer.find('#' + service.serviceId);
                             if ($secondaryBox.length) {
                                 $secondaryBox.trigger('click');
-                                // Scroll to the selected secondary service
                                 setTimeout(function() {
-                                    scrollToElement($secondaryBox, 150);
+                                    // Helper function to scroll (defined in initServices)
+                                    if (typeof scrollToElement === 'function') {
+                                        scrollToElement($secondaryBox, 150);
+                                    }
                                 }, 150);
                             }
                         }, 300);
                     }
                 } else if (service.type === 'tertiary') {
-                    // Find main category, then secondary, then tertiary
                     const $mainBox = $carousel.find('.csc-main-categories .csc-service-box[data-category="' + service.category + '"]');
                     if ($mainBox.length) {
                         $mainBox.trigger('click');
-                        // Wait for secondary services to render
                         setTimeout(function() {
-                            // Find the secondary service by title
                             let $secondaryBox = null;
                             $secondaryServicesContainer.find('.csc-service-box').each(function() {
                                 if ($(this).find('h4').text().trim() === service.secondaryTitle) {
                                     $secondaryBox = $(this);
-                                    return false; // break
+                                    return false;
                                 }
                             });
                             if ($secondaryBox && $secondaryBox.length) {
                                 $secondaryBox.trigger('click');
-                                // Wait for tertiary services to render
                                 setTimeout(function() {
-                                    // Find and click the tertiary service
                                     let $tertiaryBox = null;
                                     $tertiaryServicesContainer.find('.csc-service-box').each(function() {
                                         if ($(this).find('h4').text().trim() === service.title) {
                                             $tertiaryBox = $(this);
                                             $(this).trigger('click');
-                                            return false; // break
+                                            return false;
                                         }
                                     });
-                                    // Scroll to the selected tertiary service
-                                    if ($tertiaryBox && $tertiaryBox.length) {
+                                    if ($tertiaryBox && $tertiaryBox.length && typeof scrollToElement === 'function') {
                                         setTimeout(function() {
                                             scrollToElement($tertiaryBox, 150);
                                         }, 150);
@@ -1078,48 +1147,56 @@
                         }, 300);
                     }
                 }
+            } else {
+                // Standalone mode: redirect to URL
+                const serviceUrl = getServiceUrl(service);
+                if (serviceUrl) {
+                    window.location.href = serviceUrl;
+                }
             }
-
-            // Handle search input
-            let searchTimeout;
-            $searchInput.on('input', function() {
-                const searchText = $(this).val();
-                clearTimeout(searchTimeout);
-                
-                if (searchText.trim() === '') {
-                    $searchDropdown.hide();
-                    return;
-                }
-
-                searchTimeout = setTimeout(function() {
-                    const results = filterServices(searchText);
-                    displaySearchResults(results);
-                }, 200);
-            });
-
-            // Handle focus
-            $searchInput.on('focus', function() {
-                const searchText = $(this).val();
-                if (searchText.trim() !== '') {
-                    const results = filterServices(searchText);
-                    displaySearchResults(results);
-                }
-            });
-
-            // Close dropdown when clicking outside
-        $(document).on('click', function(e) {
-                if (!$searchContainer.is(e.target) && $searchContainer.has(e.target).length === 0) {
-                    $searchDropdown.hide();
-                }
-            });
-
-            // Prevent closing when clicking inside dropdown
-            $searchDropdown.on('click', function(e) {
-                e.stopPropagation();
-            });
         }
 
-        // Initialize service search
-        initServiceSearch();
+        // Handle search input
+        let searchTimeout;
+        $searchInput.on('input', function() {
+            const searchText = $(this).val();
+            clearTimeout(searchTimeout);
+            
+            if (searchText.trim() === '') {
+                $searchDropdown.hide();
+                return;
+            }
+
+            searchTimeout = setTimeout(function() {
+                const results = filterServices(searchText);
+                displaySearchResults(results);
+            }, 200);
+        });
+
+        // Handle focus
+        $searchInput.on('focus', function() {
+            const searchText = $(this).val();
+            if (searchText.trim() !== '') {
+                const results = filterServices(searchText);
+                displaySearchResults(results);
+            }
+        });
+
+        // Close dropdown when clicking outside
+        $(document).on('click', function(e) {
+            if (!$searchContainer.is(e.target) && $searchContainer.has(e.target).length === 0) {
+                $searchDropdown.hide();
+            }
+        });
+
+        // Prevent closing when clicking inside dropdown
+        $searchDropdown.on('click', function(e) {
+            e.stopPropagation();
+        });
     }
+
+    // Initialize service search on document ready (for standalone shortcode)
+    $(document).ready(function() {
+        initServiceSearch();
+    });
 })(jQuery);

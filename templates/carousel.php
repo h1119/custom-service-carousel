@@ -43,23 +43,7 @@ $directory_base_slug = isset($GLOBALS['csc_current_link']) ? $GLOBALS['csc_curre
         </select>
         
         <!-- Service Search Field -->
-        <div class="csc-service-search-wrapper">
-            <label for="serviceSearchInput" class="csc-location-label">
-                <i class="fas fa-search"></i>
-            </label>
-            <div class="csc-service-search" id="serviceSearchContainer">
-                <input 
-                    type="text" 
-                    id="serviceSearchInput" 
-                    class="csc-service-search-input" 
-                    placeholder="ابحث عن خدمة..."
-                    autocomplete="off"
-                />
-                <div class="csc-service-search-dropdown" id="serviceSearchDropdown" style="display: none;">
-                    <!-- Search results will be dynamically inserted here by JavaScript -->
-                </div>
-            </div>
-        </div>
+        <?php echo csc_render_service_search_field(); ?>
     </div>
     
     <!-- Main Categories Grid (4 categories displayed) -->

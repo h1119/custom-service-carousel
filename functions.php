@@ -175,6 +175,58 @@ function csc_services_list_shortcode($atts) {
 }
 add_shortcode('csc_services_list', 'csc_services_list_shortcode');
 
+// Function to render the service search field
+function csc_render_service_search_field($args = array()) {
+    $defaults = array(
+        'input_id' => 'serviceSearchInput',
+        'dropdown_id' => 'serviceSearchDropdown',
+        'container_id' => 'serviceSearchContainer',
+        'placeholder' => 'ابحث عن خدمة...',
+        'wrapper_class' => 'csc-service-search-wrapper'
+    );
+    
+    $args = wp_parse_args($args, $defaults);
+    
+    ob_start();
+    ?>
+    <div class="<?php echo esc_attr($args['wrapper_class']); ?>">
+        <label for="<?php echo esc_attr($args['input_id']); ?>" class="csc-location-label">
+            <i class="fas fa-search"></i>
+        </label>
+        <div class="csc-service-search" id="<?php echo esc_attr($args['container_id']); ?>">
+            <input 
+                type="text" 
+                id="<?php echo esc_attr($args['input_id']); ?>" 
+                class="csc-service-search-input" 
+                placeholder="<?php echo esc_attr($args['placeholder']); ?>"
+                autocomplete="off"
+            />
+            <div class="csc-service-search-dropdown" id="<?php echo esc_attr($args['dropdown_id']); ?>" style="display: none;">
+                <!-- Search results will be dynamically inserted here by JavaScript -->
+            </div>
+        </div>
+    </div>
+    <?php
+    return ob_get_clean();
+}
+
+// Shortcode to display the service search field (saqf_services_search)
+function saqf_services_search_shortcode($atts) {
+    // Parse shortcode attributes
+    $atts = shortcode_atts(array(
+        'placeholder' => 'ابحث عن خدمة...' // Default placeholder text
+    ), $atts, 'saqf_services_search');
+    
+    // Use the same IDs as carousel for JavaScript compatibility
+    return csc_render_service_search_field(array(
+        'input_id' => 'serviceSearchInput',
+        'dropdown_id' => 'serviceSearchDropdown',
+        'container_id' => 'serviceSearchContainer',
+        'placeholder' => sanitize_text_field($atts['placeholder'])
+    ));
+}
+add_shortcode('saqf_services_search', 'saqf_services_search_shortcode');
+
 // Function to generate URL for a service (for services list - matching carousel format)
 function csc_get_service_url_list($secondary_service_id = null, $tertiary_service_title = null, $secondary_service_title = null, $redirect_page = 'directory-listing') {
     $filter_field_mapping = csc_get_filter_field_mapping();
